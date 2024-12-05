@@ -4,35 +4,37 @@
 #include "ComponentTransform.h"
 #include "ComponentMesh.h"
 #include "ComponentMaterial.h"
-
 #include <string>
 #include <vector>
 
 class GameObject
 {
 public:
-	GameObject(const char* name, GameObject* parent);
-	virtual ~GameObject();
+    GameObject(const char* name, GameObject* parent = nullptr);
+    virtual ~GameObject();
 
-	void Update();
+    void Update();
+    void Enable();
+    void Disable();
+	bool IsEnabled() { return isActive; }
 
-	void Enable();
-	void Disable();
+    void DeleteGameObject(GameObject* gameObject);
+    void DeleteComponent(Component* component);
 
-	Component* AddComponent(Component* component);
-	Component* GetComponent(ComponentType type);
+    Component* AddComponent(Component* component);
+    Component* GetComponent(ComponentType type);
 
 public:
-	GameObject* parent;
-	std::string name;
+    GameObject* parent;
+    std::string name;
 
-	ComponentTransform* transform;
-	ComponentMesh* mesh;
-	ComponentMaterial* material;
+    ComponentTransform* transform;
+    ComponentMesh* mesh;
+    ComponentMaterial* material;
 
-	std::vector<Component*> components;
-	std::vector<GameObject*> children;
+    std::vector<Component*> components;
+    std::vector<GameObject*> children;
 
-	bool isActive = true;
-	bool isEditing = false;
+    bool isActive = true;
+    bool isEditing = false;
 };

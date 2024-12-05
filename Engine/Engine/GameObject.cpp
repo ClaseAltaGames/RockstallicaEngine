@@ -26,13 +26,69 @@ void GameObject::Update()
 			(*it)->Update();
 		}
 	}
+
+	
 }
 
 void GameObject::Enable()
 {
+    isActive = true;
 }
 void GameObject::Disable()
 {
+    isActive = false;
+}
+
+void GameObject::DeleteGameObject(GameObject* gameObject)
+{
+    if (!gameObject) return;
+
+    // Recursively delete children first
+    while (!gameObject->children.empty())
+    {
+        DeleteGameObject(gameObject->children.back());
+    }
+
+    // Safely delete components
+    for (auto it = gameObject->components.begin(); it != gameObject->components.end(); )
+    {
+        if (*it)  // Additional null check
+        {
+            delete* it;
+            it = gameObject->components.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    // Remove from parent's children
+    if (gameObject->parent)
+    {
+        auto it = std::find(gameObject->parent->children.begin(),
+            gameObject->parent->children.end(),
+            gameObject);
+        if (it != gameObject->parent->children.end())
+        {
+            gameObject->parent->children.erase(it);
+        }
+    }
+
+    delete gameObject;
+}
+
+void GameObject::DeleteComponent(Component* component)
+{
+    if (!component) return;
+
+    auto it = std::find(components.begin(), components.end(), component);
+    if (it != components.end())
+    {
+        components.erase(it);
+    }
+
+    delete component;
 }
 
 Component* GameObject::AddComponent(Component* component)
