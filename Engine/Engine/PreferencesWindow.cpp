@@ -129,7 +129,7 @@ void PreferencesWindow::DrawWindow()
 		app->camera->nearPlane = 0.125f;
 		app->camera->farPlane = 512.0f;
 		//grid to white color
-		app->renderer3D->grid.lineColor[0] = 1.0f;
+		//app->renderer3D->grid.lineColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	}
 
 	ImGui::End();
