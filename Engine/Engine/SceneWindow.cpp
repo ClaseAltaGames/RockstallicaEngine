@@ -49,20 +49,11 @@ void SceneWindow::DrawWindow()
 			ImGui::EndMenu();
 		}
 		if (ImGui::Button("Play")) {
-			isPlaying = !isPlaying;
-			if (isPlaying)
-			{
-				//centrar la vista en el capsule creado previamente
-				GameObject* capsule = app->scene->GetGameObjectByName("Capsule");
-				if (capsule != nullptr)
-				{
-					app->camera->LookAt(capsule->transform->position);
-				}
-			}
-			else
-			{
-				//app->scene->StopScene();
-			}
+			isPlaying = true;
+			Update();
+		}
+		if (ImGui::Button("Pause")) {
+			isPlaying = false;
 		}
 
 		ImGui::PopStyleVar();
@@ -113,4 +104,31 @@ void SceneWindow::DrawWindow()
 
 	ImGui::End();
 	ImGui::PopStyleVar();
+}
+
+void SceneWindow::Update()
+{
+	if (isPlaying)
+	{
+		GameObject* capsule = app->scene->GetGameObjectByName("Capsule");
+		if (capsule != nullptr)
+		{
+			float speed = 0.1f; // velocidad de movimiento
+
+			// Movimiento de la cápsula con las teclas WASD
+			if (app->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
+				capsule->transform->position.z += speed;  // Mover hacia adelante
+			if (app->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT)
+				capsule->transform->position.z -= speed;  // Mover hacia atrás
+			if (app->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
+				capsule->transform->position.x -= speed;  // Mover hacia la izquierda
+			if (app->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
+				capsule->transform->position.x += speed;  // Mover hacia la derecha
+
+			// Asegúrate de que la cámara lo sigue
+			app->camera->LookAt(capsule->transform->position);
+			app->scene->Update(app->GetDT());
+
+		}
+	}
 }
