@@ -47,7 +47,7 @@ public:
 
 	bool exit = false;
 	int maxFps = 60;
-	bool vsync = true;
+	bool vsync = false;
 
 private:
 	Timer	timer;

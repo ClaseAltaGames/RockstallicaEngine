@@ -36,6 +36,8 @@ bool ModuleEditor::Awake()
 	ImGui_ImplSDL2_InitForOpenGL(app->window->window, app->window->context);
 	ImGui_ImplOpenGL3_Init();
 
+	//aqui se ponen ventanas nuevas
+
 	hierarchyWindow = new HierarchyWindow(WindowType::HIERARCHY, "Hierarchy");
 	editorWindows.push_back(hierarchyWindow);
 	inspectorWindow = new InspectorWindow(WindowType::INSPECTOR, "Inspector");

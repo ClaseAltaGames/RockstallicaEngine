@@ -43,9 +43,22 @@ void SceneWindow::DrawWindow()
 					}
 				}
 			}
-
+			
 			ImGui::EndMenu();
 		}
+		if (ImGui::BeginMenu("Play")) {
+			if (ImGui::MenuItem("Play from the beginning"))
+			{
+				/*app->scene->ResetScene();
+				app->scene->PlayScene();*/
+			}
+			if (ImGui::MenuItem("Play from current time"))
+			{
+				/*app->scene->PlayScene();*/
+			}
+			ImGui::EndMenu();
+		}
+
 		ImGui::PopStyleVar();
 
 		ImGui::EndMenuBar();
