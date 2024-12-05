@@ -258,3 +258,9 @@ void ModuleCamera::SetCursor(CursorType cursorType)
 		isDragging = (cursorType == CursorType::DRAG);
 	}
 }
+
+void ModuleCamera::SetPosition(const glm::vec3& position)
+{
+	pos = position;
+	LookAt(ref);
+}

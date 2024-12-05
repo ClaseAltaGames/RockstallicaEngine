@@ -49,6 +49,21 @@ void SceneWindow::DrawWindow()
 			ImGui::EndMenu();
 		}
 		if (ImGui::Button("Play")) {
+			const char* objectNames[] = { "Capsule" };
+			const char* basePath = "Engine/Primitives/";
+			const char* extension = ".fbx";
+
+			for (const char* name : objectNames)
+			{
+				std::string fullPath = std::string(basePath) + name + extension;
+				Resource* resource = app->resources->FindResourceInLibrary(fullPath, ResourceType::MODEL);
+				if (!resource)
+					resource = app->importer->ImportFileToLibrary(fullPath, ResourceType::MODEL);
+
+				app->importer->modelImporter->LoadModel(resource, app->scene->root);
+				app->editor->selectedGameObject = app->scene->root->children.back();
+			}
+
 			isPlaying = true;
 			Update();
 		}
@@ -110,25 +125,40 @@ void SceneWindow::Update()
 {
 	if (isPlaying)
 	{
+		app->scene->Update(app->GetDT());
 		GameObject* capsule = app->scene->GetGameObjectByName("Capsule");
 		if (capsule != nullptr)
 		{
-			float speed = 0.1f; // velocidad de movimiento
+			float speed = 5.0f * app->GetDT(); // Velocidad del jugador
+			float rotationSpeed = 0.1f;       // Velocidad de rotación con el mouse
 
-			// Movimiento de la cápsula con las teclas WASD
+			// Movimiento del Capsule con teclado
+			glm::vec3 forward = capsule->transform->forward;
+			glm::vec3 right = capsule->transform->right;
+
 			if (app->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
-				capsule->transform->position.z += speed;  // Mover hacia adelante
+				capsule->transform->position += forward * speed;
 			if (app->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT)
-				capsule->transform->position.z -= speed;  // Mover hacia atrás
+				capsule->transform->position -= forward * speed;
 			if (app->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
-				capsule->transform->position.x -= speed;  // Mover hacia la izquierda
+				capsule->transform->position -= right * speed;
 			if (app->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
-				capsule->transform->position.x += speed;  // Mover hacia la derecha
+				capsule->transform->position += right * speed;
 
-			// Asegúrate de que la cámara lo sigue
-			app->camera->LookAt(capsule->transform->position);
-			app->scene->Update(app->GetDT());
+			// Rotación del Capsule con el mouse
+			int mouseXMotion = app->input->GetMouseXMotion();
+			int mouseYMotion = app->input->GetMouseYMotion();
 
+			if (app->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT) // Botón derecho del ratón
+			{
+				capsule->transform->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), -mouseXMotion * rotationSpeed); // Rotación horizontal
+				app->camera->RotateCamera(mouseXMotion, mouseYMotion);
+			}
+
+			// Sincronizar la cámara con la posición de la cabeza del Capsule
+			glm::vec3 cameraOffset = glm::vec3(0.0f, 1.8f, 0.0f); // Ajustar la altura a la cabeza
+			app->camera->SetPosition(capsule->transform->position + cameraOffset);
 		}
 	}
+}
 }
