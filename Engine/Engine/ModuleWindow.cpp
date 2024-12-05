@@ -55,6 +55,13 @@ bool ModuleWindow::Awake()
 	return ret;
 }
 
+bool ModuleWindow::Update(float dt)
+{
+	app->editor->sceneWindow->Update();
+
+	return true;
+}
+
 bool ModuleWindow::CleanUp()
 {
 	LOG(LogType::LOG_INFO, "Destroying SDL window and quitting all SDL systems");

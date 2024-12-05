@@ -19,6 +19,7 @@ public:
 	virtual ~ModuleWindow();
 
 	bool Awake();
+	bool Update(float dt);
 	bool CleanUp();
 
 	void SetFullScreen(bool enabled);
