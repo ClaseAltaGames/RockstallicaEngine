@@ -9,6 +9,7 @@ ModuleFileSystem::ModuleFileSystem(App* app) : Module(app)
 	std::filesystem::create_directories("Library/Textures");
 	std::filesystem::create_directories("Library/Meshes");
 	std::filesystem::create_directories("Library/Models");
+	std::filesystem::create_directories("Library/Scripts");
 }
 
 ModuleFileSystem::~ModuleFileSystem()
@@ -60,6 +61,8 @@ std::string ModuleFileSystem::CopyFileIfNotExists(const std::string& source)
 		assetsDir = "Assets/Models/";
 	else if (extension == "png" || extension == "dds")
 		assetsDir = "Assets/Textures/";
+	else if (extension == "cpp" || extension == "h" || extension == "cs")
+		assetsDir = "Assets/Scripts/";
 
 	std::string destination = assetsDir + GetNameFromPath(source);
 

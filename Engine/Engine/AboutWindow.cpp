@@ -18,20 +18,27 @@ void AboutWindow::DrawWindow()
 	UpdateMouseState();
 
     // Title
-    ImGui::Text("SpectraEngine");
+    ImGui::Text("Rockstallica Engine");
     ImGui::Separator();
 
     // Description
     ImGui::Text("Description:");
-    ImGui::TextWrapped("SpectraEngine is a 3D game engine developed in C++ with OpenGL, currently capable of rendering geometry with a range of controls and information displays.");
+    ImGui::TextWrapped("Rockstallica Engine is a 3D game engine developed in C++ with OpenGL, currently capable of rendering geometry with a range of controls and information displays.");
     ImGui::Spacing();
-    HyperLink("GitHub", "https://github.com/CITM-UPC/SpectraEngine");
+    HyperLink("GitHub", "https://github.com/ClaseAltaGames/RockstallicaEngine");
     ImGui::Spacing();
 
     ImGui::Separator();
 
+    // Fork Team Members
+	ImGui::Text("Team Members:");
+	ImGui::Spacing();
+    HyperLink("Pau Mena", "https://github.com/PauMenaTorres");
+	HyperLink("Edgar Mesa", "https://github.com/edgarmd1");
+	ImGui::Spacing();
+
     // Team Members
-    ImGui::Text("Team Members:");
+    ImGui::Text("Original Team Members:");
 	ImGui::Spacing();
     HyperLink("Guillem Alqueza", "https://github.com/guillemalqueza");
     HyperLink("Miguel Iglesias", "https://github.com/MiguelIglesiasAbarca");

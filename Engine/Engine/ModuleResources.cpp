@@ -64,6 +64,11 @@ std::string ModuleResources::CreateLibraryFileDir(std::string name, ResourceType
 	case ResourceType::TEXTURE:
 		return "Library/Textures/" + name + ".dds";
 		break;
+
+	case ResourceType::SCRIPT:
+		return "Library/Scripts/" + name + ".cs";
+		break; 
+	
 	}
 
 	return std::string();
