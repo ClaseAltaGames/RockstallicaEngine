@@ -16,6 +16,8 @@ public:
 	bool CleanUp();
 
 	GameObject* CreateGameObject(const char* name, GameObject* parent);
+	//crear la funcion GetGameObjectByName
+	GameObject* GetGameObjectByName(const char* name);
 
 public:
 	GameObject* root = nullptr;

@@ -1,5 +1,7 @@
 #include "SceneWindow.h"
 #include "App.h"
+#include "GameObject.h"
+#include "ModuleEditor.h"
 
 SceneWindow::SceneWindow(const WindowType type, const std::string& name) : EditorWindow(type, name)
 {
@@ -50,7 +52,12 @@ void SceneWindow::DrawWindow()
 			isPlaying = !isPlaying;
 			if (isPlaying)
 			{
-				//app->scene->PlayScene();
+				//centrar la vista en el capsule creado previamente
+				GameObject* capsule = app->scene->GetGameObjectByName("Capsule");
+				if (capsule != nullptr)
+				{
+					app->camera->LookAt(capsule->transform->position);
+				}
 			}
 			else
 			{

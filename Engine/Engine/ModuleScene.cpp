@@ -38,3 +38,15 @@ GameObject* ModuleScene::CreateGameObject(const char* name, GameObject* parent)
 
 	return gameObject;
 }
+
+GameObject* ModuleScene::GetGameObjectByName(const char* name)
+{
+	//check if there is a Capsule Game Object in the scene
+	for (auto it = root->children.begin(); it != root->children.end(); ++it) {
+		if ((*it)->name == name) {
+			return (*it);
+		}
+	}
+
+	return nullptr;
+}
