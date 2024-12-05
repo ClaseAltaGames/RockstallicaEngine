@@ -152,7 +152,7 @@ void SceneWindow::Update()
 			if (app->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT) // Botón derecho del ratón
 			{
 				capsule->transform->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), -mouseXMotion * rotationSpeed); // Rotación horizontal
-				app->camera->RotateCamera(mouseXMotion, mouseYMotion);
+				//app->camera->RotateCamera(mouseXMotion, mouseYMotion);
 			}
 
 			// Sincronizar la cámara con la posición de la cabeza del Capsule
