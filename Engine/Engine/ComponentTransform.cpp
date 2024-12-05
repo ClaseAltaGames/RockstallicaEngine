@@ -1,6 +1,7 @@
 #include "ComponentTransform.h"
 #include "GameObject.h"
 
+
 ComponentTransform::ComponentTransform(GameObject* gameObject) : Component(gameObject, ComponentType::TRANSFORM)
 {
 	localTransform = glm::float4x4(1.0f);
@@ -230,4 +231,35 @@ void ComponentTransform::SetButtonColor(const char* label)
 	ImGui::Button(label);
 
 	ImGui::PopStyleColor(3);
+}
+
+glm::vec3 ComponentTransform::GetForward() const
+{
+	return glm::normalize(glm::vec3(globalTransform[2])); // Toma la tercera columna de la matriz
+}
+
+glm::vec3 ComponentTransform::GetRight() const
+{
+	return glm::normalize(glm::vec3(globalTransform[0])); // Toma la primera columna de la matriz
+}
+
+void ComponentTransform::Rotate(const glm::vec3& axis, float angle)
+{
+	// Convierte el ángulo a radianes
+	float radians = glm::radians(angle);
+
+	// Crea un quaternion basado en el eje y ángulo
+	glm::quat rotationQuat = glm::angleAxis(radians, glm::normalize(axis));
+
+	// Aplica la rotación al quaternion actual
+	rotation = rotationQuat * rotation;
+
+	// Actualiza los eulerAngles (en grados)
+	eulerRotation = glm::degrees(glm::eulerAngles(rotation));
+
+	// Marca el transform para ser actualizado
+	updateTransform = true;
+
+	// Aplica la transformación
+	UpdateTransform();
 }

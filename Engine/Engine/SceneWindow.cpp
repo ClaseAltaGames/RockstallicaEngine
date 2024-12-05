@@ -133,8 +133,8 @@ void SceneWindow::Update()
 			float rotationSpeed = 0.1f;       // Velocidad de rotación con el mouse
 
 			// Movimiento del Capsule con teclado
-			glm::vec3 forward = capsule->transform->forward;
-			glm::vec3 right = capsule->transform->right;
+			glm::vec3 forward = capsule->transform->GetForward();
+			glm::vec3 right = capsule->transform->GetRight();
 
 			if (app->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
 				capsule->transform->position += forward * speed;
@@ -160,5 +160,4 @@ void SceneWindow::Update()
 			app->camera->SetPosition(capsule->transform->position + cameraOffset);
 		}
 	}
-}
 }

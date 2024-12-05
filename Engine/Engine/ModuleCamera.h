@@ -27,7 +27,7 @@ public:
 
 	bool IsGameCamera() const { return isGameCamera; }
 
-private:
+public:
 	bool isGameCamera = false;
 	void HandleMovement(glm::vec3& newPos, float speed, float fastSpeed);
 	void HandleZoom(float zoomSpeed);

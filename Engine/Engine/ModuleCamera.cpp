@@ -158,21 +158,20 @@ void ModuleCamera::RotateCamera(int dx, int dy)
 {
 	float sensitivity = 0.005f;
 
+	// Rotación horizontal
 	if (dx != 0)
 	{
-		float DeltaX = (float)dx * sensitivity;
-
-		X = RotateVector(X, DeltaX, glm::vec3(0.0f, 1.0f, 0.0f));
-		Y = RotateVector(Y, DeltaX, glm::vec3(0.0f, 1.0f, 0.0f));
-		Z = RotateVector(Z, DeltaX, glm::vec3(0.0f, 1.0f, 0.0f));
+		float deltaX = (float)dx * sensitivity;
+		X = RotateVector(X, deltaX, glm::vec3(0.0f, 1.0f, 0.0f));
+		Z = RotateVector(Z, deltaX, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
+	// Rotación vertical (limitada para evitar que la cámara gire completamente)
 	if (dy != 0)
 	{
-		float DeltaY = (float)dy * sensitivity;
-
-		Y = RotateVector(Y, DeltaY, X);
-		Z = RotateVector(Z, DeltaY, X);
+		float deltaY = (float)dy * sensitivity;
+		Y = RotateVector(Y, deltaY, X);
+		Z = RotateVector(Z, deltaY, X);
 
 		if (Y.y < 0.0f)
 		{
@@ -180,7 +179,10 @@ void ModuleCamera::RotateCamera(int dx, int dy)
 			Y = glm::cross(Z, X);
 		}
 	}
+
+	CalculateViewMatrix();
 }
+
 
 void ModuleCamera::FrameSelected()
 {
