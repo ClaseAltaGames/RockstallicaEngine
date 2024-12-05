@@ -9,4 +9,7 @@ public:
 	~SceneWindow();
 
 	void DrawWindow() override;
+
+	bool isPlaying = false;
+	bool isPaused = false;
 };

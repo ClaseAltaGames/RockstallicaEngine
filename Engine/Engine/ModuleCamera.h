@@ -23,7 +23,12 @@ public:
 	const glm::mat4& GetViewMatrix() const;
 	glm::mat4 GetProjectionMatrix() const;
 
+	void SetAsGameCamera(bool isGameCamera) { this->isGameCamera = isGameCamera; }
+
+	bool IsGameCamera() const { return isGameCamera; }
+
 private:
+	bool isGameCamera = false;
 	void HandleMovement(glm::vec3& newPos, float speed, float fastSpeed);
 	void HandleZoom(float zoomSpeed);
 	void HandleRotation();

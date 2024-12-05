@@ -12,6 +12,7 @@
 #include "PerformanceWindow.h"
 #include "PreferencesWindow.h"
 #include "AboutWindow.h"
+#include "GameWindow.h"
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -41,6 +42,7 @@ public:
 	InspectorWindow* inspectorWindow = nullptr;
 	ProjectWindow* projectWindow = nullptr;
 	SceneWindow* sceneWindow = nullptr;
+	GameWindow* gameWindow = nullptr;
 	PerformanceWindow* performanceWindow = nullptr;
 	PreferencesWindow* preferencesWindow = nullptr;
 	AboutWindow* aboutWindow = nullptr;
