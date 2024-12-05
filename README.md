@@ -1,11 +1,20 @@
-# SpectraEngine
+# Rockstallica Engine
+![655497EC-52E8-4703-9758-D0CD6AA57566_4_5005_c](https://github.com/user-attachments/assets/dd874f3d-9a8e-4075-8042-3d03edb3c761)
 
 ## Description
-**SpectraEngine** is a 3D game engine developed in **C++** with **OpenGL**, currently capable of rendering geometry with a range of controls and information displays.
+**Rockstallica Engine** is a 3D game engine developed in **C++** with **OpenGL**, currently capable of rendering geometry with a range of controls and information displays.
 
-The project is under active development, and the code is available on [GitHub](https://github.com/CITM-UPC/SpectraEngine).
+This Engine is forked from another CITM 3D Engine, you can check the original repesitory here:
 
-## Team Members
+Original repository: [SpectraEngine](https://github.com/CITM-UPC/SpectraEngine)
+
+The project is under active development, and the code is available on [GitHub](https://github.com/ClaseAltaGames/RockstallicaEngine).
+
+## Members
+- [Edgar Mesa Domínguez](github.com/edgarmd1)
+- [Pau Mena Torres](github.com/PauMenaTorres)
+
+## Original Members
 - [Guillem Alqueza Mayench](https://github.com/guillemalqueza)
 - [Miguel Iglesias Abarca](https://github.com/MiguelIglesiasAbarca)
 - [Lluc Cid](https://github.com/Lluccib)
