@@ -117,5 +117,20 @@ void PreferencesWindow::DrawWindow()
 		ImGui::InputFloat("##Far", &app->camera->farPlane);
 	}
 
+	if (ImGui::Button("Reset settings"))
+	{
+		drawTextures = true;
+		cullFace = true;
+		vertexNormalLength = 0.1f;
+		faceNormalLength = 0.1f;
+		vertexNormalColor = glm::vec3(1, 0, 0);
+		faceNormalColor = glm::vec3(0, 0, 1);
+		app->camera->fov = 60.0f;
+		app->camera->nearPlane = 0.125f;
+		app->camera->farPlane = 512.0f;
+		//grid to white color
+		app->renderer3D->grid.lineColor[0] = 1.0f;
+	}
+
 	ImGui::End();
 }
