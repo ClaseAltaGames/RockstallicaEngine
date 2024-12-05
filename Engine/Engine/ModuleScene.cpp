@@ -20,6 +20,21 @@ bool ModuleScene::Update(float dt)
 {
 	root->Update();
 
+	//Hide Objects
+	if (app->input->GetKey(SDL_SCANCODE_H) == KEY_DOWN && app->editor->selectedGameObject != root)
+	{
+		if (app->editor->selectedGameObject->IsEnabled())
+			app->editor->selectedGameObject->Disable();
+		else
+			app->editor->selectedGameObject->Enable();
+	}
+	//Delete Objects
+	if (app->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_DOWN && app->editor->selectedGameObject != root)
+	{
+		auto& siblings = app->editor->selectedGameObject->parent->children;
+		siblings.erase(std::remove(siblings.begin(), siblings.end(), app->editor->selectedGameObject), siblings.end());
+	}
+
 	return true;
 }
 
