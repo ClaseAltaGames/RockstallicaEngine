@@ -19,6 +19,7 @@ public:
 	std::string GetExtension(const std::string& filePath);
 	std::string GetNameFromPath(const std::string& filePath);
 	std::string GetFileNameWithoutExtension(const std::string& filePath);
+	std::string CreateFolder(const std::string& folderPath);
 
 	bool FileExists(const std::string& filePath);
 };

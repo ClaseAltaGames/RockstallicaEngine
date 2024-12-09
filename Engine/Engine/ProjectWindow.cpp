@@ -1,5 +1,6 @@
 #include "ProjectWindow.h"
 #include "App.h"
+#include "string.h"
 
 ProjectWindow::ProjectWindow(const WindowType type, const std::string& name) : EditorWindow(type, name), currentPath(".")
 {
@@ -383,6 +384,55 @@ void ProjectWindow::DrawMenuBar()
 				app->importer->ImportFile(selectedFile);
 				UpdateDirectoryContent();
 			}
+		}
+		if (ImGui::Button("Create Folder"))
+		{
+			//crear una carpeta con nombre "New Folder"
+			std::filesystem::path newFolder = currentPath / "New Folder";
+			std::filesystem::create_directory(newFolder);
+			UpdateDirectoryContent();
+		}
+		if (ImGui::Button("Change Folder Name"))
+		{
+			if (!selectedPath.empty() && std::filesystem::is_directory(selectedPath))
+			{
+				static char newFolderName[256] = "";
+				ImGui::OpenPopup("RenameFolderPopup");
+				strncpy_s(newFolderName, selectedPath.filename().string().c_str(), sizeof(newFolderName));
+			}
+		}
+
+		if (ImGui::BeginPopup("RenameFolderPopup"))
+		{
+			ImGui::Text("Renaming: %s", selectedPath.filename().string().c_str());
+			static char newFolderName[256] = "";
+			ImGui::InputText("New Folder Name", newFolderName, sizeof(newFolderName));
+
+			if (ImGui::Button("Apply"))
+			{
+				std::filesystem::path newPath = selectedPath.parent_path() / newFolderName;
+
+				try
+				{
+					std::filesystem::rename(selectedPath, newPath);
+					selectedPath = newPath; // Actualiza el path seleccionado
+					UpdateDirectoryContent();
+				}
+				catch (const std::filesystem::filesystem_error& e)
+				{
+					//LOG("Failed to rename folder: %s", e.what());
+				}
+
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
 		}
 
 		std::vector<std::string> pathParts = GetPathParts();

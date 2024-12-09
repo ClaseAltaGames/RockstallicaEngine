@@ -102,3 +102,9 @@ bool ModuleFileSystem::FileExists(const std::string& filePath)
 {
 	return std::filesystem::exists(filePath);
 }
+
+std::string ModuleFileSystem::CreateFolder(const std::string& folderPath)
+{
+	std::filesystem::create_directories(folderPath);
+	return folderPath;
+}
