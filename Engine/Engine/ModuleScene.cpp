@@ -127,35 +127,43 @@ void ModuleScene::LoadScene(const char* path)
         // Limpiar la escena actual
         root->children.clear();
 
-        // Crear los GameObjects desde el JSON
-        std::function<GameObject* (json&, GameObject*)> LoadGameObject = [&](json& gameObjectJson, GameObject* parent) -> GameObject* {
-            // Crear el GameObject
-            const std::string& name = gameObjectJson["name"];
-            GameObject* gameObject = CreateGameObject(name.c_str(), parent);
+        // Si hay objetos en el JSON
+        if (sceneJson.contains("gameObjects"))
+        {
+            json& rootObject = sceneJson["gameObjects"][0]; // Asignar el primer objeto como raíz
+            root->name = rootObject["name"]; // Cambiar el nombre del root a "Escena"
 
-            // Recorrer y cargar los hijos
-            if (gameObjectJson.contains("children"))
-            {
-                for (json& childJson : gameObjectJson["children"])
+            // Cargar los hijos de "Escena"
+            std::function<void(json&, GameObject*)> LoadGameObject = [&](json& gameObjectJson, GameObject* parent) {
+                // Crear un GameObject hijo
+                const std::string& name = gameObjectJson["name"];
+                GameObject* gameObject = CreateGameObject(name.c_str(), parent);
+
+                // Recorrer y cargar los hijos
+                if (gameObjectJson.contains("children"))
                 {
-                    LoadGameObject(childJson, gameObject);
+                    for (json& childJson : gameObjectJson["children"])
+                    {
+                        LoadGameObject(childJson, gameObject);
+                    }
+                }
+                };
+
+            // Procesar los hijos de la raíz
+            if (rootObject.contains("children"))
+            {
+                for (json& childJson : rootObject["children"])
+                {
+                    LoadGameObject(childJson, root);
                 }
             }
 
-            return gameObject;
-            };
-
-        // Verificar si hay gameObjects en la escena
-        if (sceneJson.contains("gameObjects"))
-        {
-            for (json& gameObjectJson : sceneJson["gameObjects"])
-            {
-                // Pasar `root` como el padre inicial
-                LoadGameObject(gameObjectJson, root);
-            }
+            LOG(LogType::LOG_INFO, "Scene loaded from %s", scenePath.c_str());
         }
-
-        LOG(LogType::LOG_INFO, "Scene loaded from %s", scenePath.c_str());
+        else
+        {
+            LOG(LogType::LOG_ERROR, "No gameObjects found in %s", scenePath.c_str());
+        }
     }
     else
     {
