@@ -19,6 +19,12 @@ public:
 	//crear la funcion GetGameObjectByName
 	GameObject* GetGameObjectByName(const char* name);
 
+	//save scene
+	void SaveScene(const char* path);
+
+	//load scene
+	void LoadScene(const char* path);
+
 public:
 	GameObject* root = nullptr;
 };

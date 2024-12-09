@@ -142,6 +142,14 @@ void ModuleEditor::MainMenuBar()
 
 	if (ImGui::BeginMenu("File"))
 	{
+		if (ImGui::MenuItem("Save scene", "Ctrl + S"))
+		{
+			app->scene->SaveScene("Assets/Scenes/Scene");
+		}
+		if (ImGui::MenuItem("Load scene", "Ctrl + L"))
+		{
+			app->scene->LoadScene("Assets/Scene");
+		}
 		if (ImGui::MenuItem("Exit", "Alt+F4"))
 		{
 			app->exit = true;
