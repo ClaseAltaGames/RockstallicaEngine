@@ -3,15 +3,21 @@
         {
             "children": [
                 {
-                    "children": [
-                        {
-                            "name": "Cube"
-                        }
-                    ],
-                    "name": "Cube"
+                    "mesh": {
+                        "indices": [],
+                        "normals": [],
+                        "vertices": []
+                    },
+                    "name": "Sphere"
                 }
             ],
-            "name": "Escena2"
+            "mesh": {
+                "indices": [],
+                "normals": [],
+                "vertices": []
+            },
+            "name": "Sphere"
         }
-    ]
+    ],
+    "name": "Escena1"
 }
