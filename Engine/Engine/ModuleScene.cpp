@@ -82,14 +82,12 @@ void ModuleScene::SaveScene(const char* path)
     std::function<json(GameObject*)> SaveGameObject = [&](GameObject* gameObject) -> json {
         json gameObjectJson;
         gameObjectJson["name"] = gameObject->name;
-<<<<<<< Updated upstream
-=======
+
 
         // Guardar transformaciones (posición, rotación, escala)
         gameObjectJson["position"] = { gameObject->transform->position.x, gameObject->transform->position.y, gameObject->transform->position.z };
         gameObjectJson["rotation"] = { gameObject->transform->rotation.x, gameObject->transform->rotation.y, gameObject->transform->rotation.z };
         gameObjectJson["scale"] = { gameObject->transform->scale.x, gameObject->transform->scale.y, gameObject->transform->scale.z };
->>>>>>> Stashed changes
 
         // Guardar Mesh si tiene una
         if (gameObject->mesh) {
@@ -97,22 +95,17 @@ void ModuleScene::SaveScene(const char* path)
             for (const auto& vertex : gameObject->mesh->GetVertices()) {
                 serializedVertices.push_back({ vertex.x, vertex.y, vertex.z });
             }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
+
+
             std::vector<std::vector<float>> serializedNormals;
             for (const auto& normal : gameObject->mesh->GetNormals()) {
                 serializedNormals.push_back({ normal.x, normal.y, normal.z });
             }
-<<<<<<< Updated upstream
             std::vector<uint32_t> serializedIndices = gameObject->mesh->GetIndices();
-=======
 
-            std::vector<uint32_t> serializedIndices = gameObject->mesh->GetIndices();
 
             // Guardar los datos de la malla en el JSON
->>>>>>> Stashed changes
             gameObjectJson["mesh"]["vertices"] = serializedVertices;
             gameObjectJson["mesh"]["indices"] = serializedIndices;
             gameObjectJson["mesh"]["normals"] = serializedNormals;
@@ -154,72 +147,57 @@ void ModuleScene::LoadScene(const char* path)
 
         root->children.clear();
 
-<<<<<<< Updated upstream
         // Cargar el nombre de la escena
         if (sceneJson.contains("name")) {
             root->name = sceneJson["name"];
         }
 
         if (sceneJson.contains("gameObjects")) {
-            json& rootObject = sceneJson["gameObjects"][0];
-=======
-        // Si hay objetos en el JSON
-        if (sceneJson.contains("gameObjects"))
-        {
-            // Función recursiva para cargar GameObjects
->>>>>>> Stashed changes
+            // Función recursiva para cargar los GameObjects
             std::function<void(json&, GameObject*)> LoadGameObject = [&](json& gameObjectJson, GameObject* parent) {
                 const std::string& name = gameObjectJson["name"];
                 GameObject* gameObject = CreateGameObject(name.c_str(), parent);
 
-<<<<<<< Updated upstream
+                // Cargar transformaciones (posición, rotación, escala)
+                if (gameObjectJson.contains("position")) {
+                    gameObject->transform->position = glm::vec3(gameObjectJson["position"][0], gameObjectJson["position"][1], gameObjectJson["position"][2]);
+                }
+                if (gameObjectJson.contains("rotation")) {
+                    gameObject->transform->rotation = glm::vec3(gameObjectJson["rotation"][0], gameObjectJson["rotation"][1], gameObjectJson["rotation"][2]);
+                }
+                if (gameObjectJson.contains("scale")) {
+                    gameObject->transform->scale = glm::vec3(gameObjectJson["scale"][0], gameObjectJson["scale"][1], gameObjectJson["scale"][2]);
+                }
+
+                // Cargar Mesh si existe
                 if (gameObjectJson.contains("mesh")) {
                     const auto& meshJson = gameObjectJson["mesh"];
                     ComponentMesh* mesh = new ComponentMesh(gameObject);
+
                     if (meshJson.contains("vertices")) {
                         for (const auto& vertex : meshJson["vertices"]) {
                             glm::vec3 vert(vertex[0], vertex[1], vertex[2]);
-=======
-                // Cargar transformaciones (posición, rotación, escala)
-                gameObject->transform->position = glm::vec3(gameObjectJson["position"][0], gameObjectJson["position"][1], gameObjectJson["position"][2]);
-                gameObject->transform->rotation = glm::vec3(gameObjectJson["rotation"][0], gameObjectJson["rotation"][1], gameObjectJson["rotation"][2]);
-                gameObject->transform->scale = glm::vec3(gameObjectJson["scale"][0], gameObjectJson["scale"][1], gameObjectJson["scale"][2]);
-
-                // Si el objeto tiene una malla
-                if (gameObjectJson.contains("mesh"))
-                {
-                    const auto& meshJson = gameObjectJson["mesh"];
-
-                    // Crear un componente de malla para este GameObject
-                    ComponentMesh* mesh = new ComponentMesh(gameObject);
-
-                    // Cargar vértices
-                    if (meshJson.contains("vertices"))
-                    {
-                        for (const auto& vertex : meshJson["vertices"])
-                        {
-                            glm::vec3 vert;
-                            vert.x = vertex[0];
-                            vert.y = vertex[1];
-                            vert.z = vertex[2];
->>>>>>> Stashed changes
                             mesh->vertices.push_back(vert);
                         }
                     }
+
                     if (meshJson.contains("indices")) {
                         for (const auto& index : meshJson["indices"]) {
                             mesh->indices.push_back(index);
                         }
                     }
+
                     if (meshJson.contains("normals")) {
                         for (const auto& normal : meshJson["normals"]) {
                             glm::vec3 norm(normal[0], normal[1], normal[2]);
                             mesh->normals.push_back(norm);
                         }
                     }
+
                     gameObject->mesh = mesh;
                 }
 
+                // Cargar hijos si existen
                 if (gameObjectJson.contains("children")) {
                     for (json& childJson : gameObjectJson["children"]) {
                         LoadGameObject(childJson, gameObject);
@@ -227,18 +205,11 @@ void ModuleScene::LoadScene(const char* path)
                 }
                 };
 
-<<<<<<< Updated upstream
-            if (rootObject.contains("children")) {
-                for (json& childJson : rootObject["children"]) {
-                    LoadGameObject(childJson, root);
-                }
-=======
             // Procesar los GameObjects de la raíz
-            for (json& gameObjectJson : sceneJson["gameObjects"])
-            {
+            for (json& gameObjectJson : sceneJson["gameObjects"]) {
                 LoadGameObject(gameObjectJson, root);
->>>>>>> Stashed changes
             }
+
             LOG(LogType::LOG_INFO, "Scene loaded from %s", scenePath.c_str());
         }
         else {

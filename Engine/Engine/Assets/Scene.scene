@@ -8,7 +8,22 @@
                         "normals": [],
                         "vertices": []
                     },
-                    "name": "Sphere"
+                    "name": "Sphere",
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
                 }
             ],
             "mesh": {
@@ -16,7 +31,70 @@
                 "normals": [],
                 "vertices": []
             },
-            "name": "Sphere"
+            "name": "Sphere",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "children": [
+                {
+                    "mesh": {
+                        "indices": [],
+                        "normals": [],
+                        "vertices": []
+                    },
+                    "name": "Capsule",
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            ],
+            "mesh": {
+                "indices": [],
+                "normals": [],
+                "vertices": []
+            },
+            "name": "Capsule",
+            "position": [
+                2.700000047683716,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.899999976158142,
+                1.9000004529953003,
+                1.9000004529953003
+            ]
         }
     ],
     "name": "Escena1"
