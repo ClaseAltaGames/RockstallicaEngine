@@ -72,6 +72,23 @@ GameObject* ModuleScene::GetGameObjectByName(const char* name)
 	return nullptr;
 }
 
+
+
+
+#include <nlohmann/json.hpp>
+#include <glm/vec3.hpp>
+
+void to_json(nlohmann::json& j, const glm::vec3& vec) {
+    j = nlohmann::json{ {"x", vec.x}, {"y", vec.y}, {"z", vec.z} };
+}
+
+void from_json(const nlohmann::json& j, glm::vec3& vec) {
+    j.at("x").get_to(vec.x);
+    j.at("y").get_to(vec.y);
+    j.at("z").get_to(vec.z);
+}
+
+
 void ModuleScene::SaveScene(const char* path)
 {
     json sceneJson;
@@ -91,10 +108,24 @@ void ModuleScene::SaveScene(const char* path)
 
         // Guardar Mesh si tiene una
         if (gameObject->mesh) {
-            std::vector<std::vector<float>> serializedVertices;
+
+            //json j_vec(gameObject->mesh->GetVertices());
+            
+            
+            std::vector<glm::vec3> vertices = gameObject->mesh->vertices;
+            nlohmann::json j_vec = nlohmann::json::array(); // Explicitly initialize as an array
+
+            for (const auto& vec : vertices) {
+                // Convert each glm::vec3 into a JSON object using the to_json function
+                j_vec.push_back(nlohmann::json{ {"x", vec.x}, {"y", vec.y}, {"z", vec.z} });
+            }
+
+
+
+            /*std::vector<std::vector<float>> serializedVertices;
             for (const auto& vertex : gameObject->mesh->GetVertices()) {
                 serializedVertices.push_back({ vertex.x, vertex.y, vertex.z });
-            }
+            }*/
 
 
 
@@ -106,7 +137,7 @@ void ModuleScene::SaveScene(const char* path)
 
 
             // Guardar los datos de la malla en el JSON
-            gameObjectJson["mesh"]["vertices"] = serializedVertices;
+            gameObjectJson["mesh"]["vertices"] = j_vec;
             gameObjectJson["mesh"]["indices"] = serializedIndices;
             gameObjectJson["mesh"]["normals"] = serializedNormals;
         }
