@@ -371,10 +371,11 @@ void ProjectWindow::DrawMenuBar()
 		{
 			//filtro de importacion de archivos
 			const char* filter =
-				"All Files (*.fbx;*.png;*.dds;*.cs)\0*.fbx;*.png;*.dds;*.cs\0"
+				"All Files (*.fbx;*.png;*.dds;*tga;*.cs)\0*.fbx;*.png;*.dds;*tga;*.cs\0"
 				"FBX Files (*.fbx)\0*.fbx\0"
 				"PNG Files (*.png)\0*.png\0"
 				"DDS Files (*.dds)\0*.dds\0"
+				"TGA Files (*.tga)\0*.tga\0"
 				"CS Files (*.cs)\0*.cs\0"
 				"\0";
 

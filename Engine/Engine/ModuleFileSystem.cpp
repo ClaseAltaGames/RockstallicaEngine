@@ -59,7 +59,7 @@ std::string ModuleFileSystem::CopyFileIfNotExists(const std::string& source)
 
 	if (extension == "fbx")
 		assetsDir = "Assets/Models/";
-	else if (extension == "png" || extension == "dds")
+	else if (extension == "png" || extension == "dds" || extension == "tga")
 		assetsDir = "Assets/Textures/";
 	else if (extension == "cpp" || extension == "h" || extension == "cs")
 		assetsDir = "Assets/Scripts/";
