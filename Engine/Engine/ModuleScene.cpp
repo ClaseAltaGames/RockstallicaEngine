@@ -94,55 +94,27 @@ void ModuleScene::SaveScene(const char* path)
     json sceneJson;
 
     // Guardar el nombre de la escena
-    sceneJson["name"] = root->name;
+    sceneJson["name"] = root->name; 
 
+    // Función recursiva para guardar GameObjects
     std::function<json(GameObject*)> SaveGameObject = [&](GameObject* gameObject) -> json {
         json gameObjectJson;
         gameObjectJson["name"] = gameObject->name;
-
 
         // Guardar transformaciones (posición, rotación, escala)
         gameObjectJson["position"] = { gameObject->transform->position.x, gameObject->transform->position.y, gameObject->transform->position.z };
         gameObjectJson["rotation"] = { gameObject->transform->rotation.x, gameObject->transform->rotation.y, gameObject->transform->rotation.z };
         gameObjectJson["scale"] = { gameObject->transform->scale.x, gameObject->transform->scale.y, gameObject->transform->scale.z };
 
-        // Guardar Mesh si tiene una
+        // Guardar Mesh si tiene un ComponentMesh
+       // Guardar Mesh si tiene un ComponentMesh
+        json meshJson;
         if (gameObject->mesh) {
-
-            //json j_vec(gameObject->mesh->GetVertices());
-            
-            
-            std::vector<glm::vec3> vertices = gameObject->mesh->vertices;
-            nlohmann::json j_vec = nlohmann::json::array(); // Explicitly initialize as an array
-
-            for (const auto& vec : vertices) {
-                // Convert each glm::vec3 into a JSON object using the to_json function
-                j_vec.push_back(nlohmann::json{ {"x", vec.x}, {"y", vec.y}, {"z", vec.z} });
-            }
-
-
-
-            /*std::vector<std::vector<float>> serializedVertices;
-            for (const auto& vertex : gameObject->mesh->GetVertices()) {
-                serializedVertices.push_back({ vertex.x, vertex.y, vertex.z });
-            }*/
-
-
-
-            std::vector<std::vector<float>> serializedNormals;
-            for (const auto& normal : gameObject->mesh->GetNormals()) {
-                serializedNormals.push_back({ normal.x, normal.y, normal.z });
-            }
-            std::vector<uint32_t> serializedIndices = gameObject->mesh->GetIndices();
-
-
-            // Guardar los datos de la malla en el JSON
-            gameObjectJson["mesh"]["vertices"] = j_vec;
-            gameObjectJson["mesh"]["indices"] = serializedIndices;
-            gameObjectJson["mesh"]["normals"] = serializedNormals;
+            gameObject->mesh->Save(meshJson);
         }
+        gameObjectJson["mesh"] = meshJson;
 
-        // Guardar hijos
+        // Guardar hijos recursivamente
         for (GameObject* child : gameObject->children) {
             gameObjectJson["children"].push_back(SaveGameObject(child));
         }
@@ -155,6 +127,7 @@ void ModuleScene::SaveScene(const char* path)
         sceneJson["gameObjects"].push_back(SaveGameObject(child));
     }
 
+    // Guardar en archivo
     std::string scenePath = std::string(path) + ".scene";
     std::ofstream file(scenePath);
     if (file.is_open()) {
@@ -201,10 +174,11 @@ void ModuleScene::LoadScene(const char* path)
                 }
 
                 // Cargar Mesh si existe
-                if (gameObjectJson.contains("mesh")) {
+                // Cargar Mesh si existe
+                if (gameObjectJson.contains("mesh") && gameObjectJson["mesh"].contains("has_mesh")) {
                     const auto& meshJson = gameObjectJson["mesh"];
                     ComponentMesh* mesh = new ComponentMesh(gameObject);
-
+                
                     if (meshJson.contains("vertices")) {
                         for (const auto& vertex : meshJson["vertices"]) {
                             glm::vec3 vert(vertex[0], vertex[1], vertex[2]);

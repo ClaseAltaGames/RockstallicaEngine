@@ -7,6 +7,8 @@ GameObject::GameObject(const char* name, GameObject* parent) : parent(parent), n
 	material = new ComponentMaterial(this);
 
 	AddComponent(transform);
+	AddComponent(mesh);
+	//AddComponent(material);
 }
 
 GameObject::~GameObject()
@@ -94,6 +96,12 @@ void GameObject::DeleteComponent(Component* component)
 Component* GameObject::AddComponent(Component* component)
 {
 	components.push_back(component);
+
+    // Establecer el puntero mesh si el componente es de tipo MESH
+    if (component->type == ComponentType::MESH)
+    {
+        mesh = static_cast<ComponentMesh*>(component);
+    }
 
 	return component;
 }

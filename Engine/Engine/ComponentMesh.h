@@ -3,6 +3,8 @@
 #include "Component.h"
 #include "Mesh.h"
 #include "glm/glm.hpp"
+#include "nlohmann/json.hpp"
+using json = nlohmann::json;
 
 class Mesh;
 
@@ -24,6 +26,7 @@ public:
 	const std::vector<uint32_t>& GetIndices()  { return indices; }
 	const std::vector<glm::vec3>& GetNormals()  { return normals; }
 
+	void Save(json& meshJson);
 
 
 public:
