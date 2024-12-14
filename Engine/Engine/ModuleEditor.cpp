@@ -148,7 +148,7 @@ void ModuleEditor::MainMenuBar()
 		}
 		if (ImGui::MenuItem("Load scene", "Ctrl + L"))
 		{
-			app->scene->LoadScene("Assets/Scene");
+			app->scene->LoadScene("Assets/Scenes/Scene");
 		}
 		if (ImGui::MenuItem("Exit", "Alt+F4"))
 		{

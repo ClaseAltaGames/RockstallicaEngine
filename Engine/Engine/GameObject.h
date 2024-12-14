@@ -7,6 +7,9 @@
 #include <string>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 class GameObject
 {
 public:
@@ -24,6 +27,10 @@ public:
     Component* AddComponent(Component* component);
     Component* GetComponent(ComponentType type);
 
+	json SerializeToJson() const;
+    void DeserializeFromJson(const json& gameObjectJson);
+
+
 public:
     GameObject* parent;
     std::string name;
@@ -37,4 +44,10 @@ public:
 
     bool isActive = true;
     bool isEditing = false;
+
+private:
+	json SerializeTransform() const;
+	json SerializeMesh() const;
+	json SerializeMaterial() const;
+
 };

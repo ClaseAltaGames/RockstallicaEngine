@@ -92,42 +92,14 @@ void from_json(const nlohmann::json& j, glm::vec3& vec) {
 void ModuleScene::SaveScene(const char* path)
 {
     json sceneJson;
+    sceneJson["name"] = root->name;
+    sceneJson["gameObjects"] = json::array();
 
-    // Guardar el nombre de la escena
-    sceneJson["name"] = root->name; 
-
-    // Función recursiva para guardar GameObjects
-    std::function<json(GameObject*)> SaveGameObject = [&](GameObject* gameObject) -> json {
-        json gameObjectJson;
-        gameObjectJson["name"] = gameObject->name;
-
-        // Guardar transformaciones (posición, rotación, escala)
-        gameObjectJson["position"] = { gameObject->transform->position.x, gameObject->transform->position.y, gameObject->transform->position.z };
-        gameObjectJson["rotation"] = { gameObject->transform->rotation.x, gameObject->transform->rotation.y, gameObject->transform->rotation.z };
-        gameObjectJson["scale"] = { gameObject->transform->scale.x, gameObject->transform->scale.y, gameObject->transform->scale.z };
-
-        // Guardar Mesh si tiene un ComponentMesh
-       // Guardar Mesh si tiene un ComponentMesh
-        json meshJson;
-        if (gameObject->mesh) {
-            gameObject->mesh->Save(meshJson);
-        }
-        gameObjectJson["mesh"] = meshJson;
-
-        // Guardar hijos recursivamente
-        for (GameObject* child : gameObject->children) {
-            gameObjectJson["children"].push_back(SaveGameObject(child));
-        }
-
-        return gameObjectJson;
-        };
-
-    // Guardar los hijos de la raíz
+    // Guardar cada hijo del root como un gameobject en el JSON
     for (GameObject* child : root->children) {
-        sceneJson["gameObjects"].push_back(SaveGameObject(child));
+        sceneJson["gameObjects"].push_back(child->SerializeToJson());
     }
 
-    // Guardar en archivo
     std::string scenePath = std::string(path) + ".scene";
     std::ofstream file(scenePath);
     if (file.is_open()) {
@@ -144,75 +116,29 @@ void ModuleScene::LoadScene(const char* path)
 {
     std::string scenePath = std::string(path) + ".scene";
     std::ifstream file(scenePath);
+
     if (file.is_open()) {
         json sceneJson;
         file >> sceneJson;
         file.close();
 
+        // Limpiar hijos existentes
         root->children.clear();
 
-        // Cargar el nombre de la escena
+        // Restaurar nombre de la escena
         if (sceneJson.contains("name")) {
             root->name = sceneJson["name"];
         }
 
+        // Cargar GameObjects
         if (sceneJson.contains("gameObjects")) {
-            // Función recursiva para cargar los GameObjects
-            std::function<void(json&, GameObject*)> LoadGameObject = [&](json& gameObjectJson, GameObject* parent) {
-                const std::string& name = gameObjectJson["name"];
-                GameObject* gameObject = CreateGameObject(name.c_str(), parent);
-
-                // Cargar transformaciones (posición, rotación, escala)
-                if (gameObjectJson.contains("position")) {
-                    gameObject->transform->position = glm::vec3(gameObjectJson["position"][0], gameObjectJson["position"][1], gameObjectJson["position"][2]);
-                }
-                if (gameObjectJson.contains("rotation")) {
-                    gameObject->transform->rotation = glm::vec3(gameObjectJson["rotation"][0], gameObjectJson["rotation"][1], gameObjectJson["rotation"][2]);
-                }
-                if (gameObjectJson.contains("scale")) {
-                    gameObject->transform->scale = glm::vec3(gameObjectJson["scale"][0], gameObjectJson["scale"][1], gameObjectJson["scale"][2]);
-                }
-
-                // Cargar Mesh si existe
-                // Cargar Mesh si existe
-                if (gameObjectJson.contains("mesh") && gameObjectJson["mesh"].contains("has_mesh")) {
-                    const auto& meshJson = gameObjectJson["mesh"];
-                    ComponentMesh* mesh = new ComponentMesh(gameObject);
-                
-                    if (meshJson.contains("vertices")) {
-                        for (const auto& vertex : meshJson["vertices"]) {
-                            glm::vec3 vert(vertex[0], vertex[1], vertex[2]);
-                            mesh->vertices.push_back(vert);
-                        }
-                    }
-
-                    if (meshJson.contains("indices")) {
-                        for (const auto& index : meshJson["indices"]) {
-                            mesh->indices.push_back(index);
-                        }
-                    }
-
-                    if (meshJson.contains("normals")) {
-                        for (const auto& normal : meshJson["normals"]) {
-                            glm::vec3 norm(normal[0], normal[1], normal[2]);
-                            mesh->normals.push_back(norm);
-                        }
-                    }
-
-                    gameObject->mesh = mesh;
-                }
-
-                // Cargar hijos si existen
-                if (gameObjectJson.contains("children")) {
-                    for (json& childJson : gameObjectJson["children"]) {
-                        LoadGameObject(childJson, gameObject);
-                    }
-                }
-                };
-
-            // Procesar los GameObjects de la raíz
-            for (json& gameObjectJson : sceneJson["gameObjects"]) {
-                LoadGameObject(gameObjectJson, root);
+            for (const auto& gameObjectJson : sceneJson["gameObjects"]) {
+                GameObject* newGameObject = new GameObject(
+                    gameObjectJson["name"].get<std::string>().c_str(),
+                    root
+                );
+                newGameObject->DeserializeFromJson(gameObjectJson);
+                root->children.push_back(newGameObject);
             }
 
             LOG(LogType::LOG_INFO, "Scene loaded from %s", scenePath.c_str());
