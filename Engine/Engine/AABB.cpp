@@ -1,8 +1,10 @@
 #include "AABB.h"
 
-// Constructor
-AABB::AABB(const  glm::vec3& minPoint, const  glm::vec3& maxPoint)
-    : min(minPoint), max(maxPoint) {}
+// Constructor por defecto
+AABB::AABB() : min(0.0f), max(0.0f) {}
+
+// Constructor con parámetros
+AABB::AABB(const glm::vec3& min, const glm::vec3& max) : min(min), max(max) {}
 
 // Check if this AABB intersects with another AABB
 bool AABB::Intersects(const AABB& other) const {
@@ -12,7 +14,7 @@ bool AABB::Intersects(const AABB& other) const {
 }
 
 // Update the AABB with a new point
-void AABB::Update(const  glm::vec3& point) {
+void AABB::Update(const glm::vec3& point) {
     min.x = std::min(min.x, point.x);
     min.y = std::min(min.y, point.y);
     min.z = std::min(min.z, point.z);

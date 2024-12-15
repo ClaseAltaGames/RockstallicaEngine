@@ -1,14 +1,15 @@
 #include "GameObject.h"
 
-GameObject::GameObject(const char* name, GameObject* parent) : parent(parent), name(name)
+GameObject::GameObject(const char* name, GameObject* parent)
+    : parent(parent), name(name),
+    boundingBox(AABB(glm::vec3(0.0f), glm::vec3(0.0f)))
 {
-	transform = new ComponentTransform(this);
-	mesh = new ComponentMesh(this);
-	material = new ComponentMaterial(this);
+    transform = new ComponentTransform(this);
+    mesh = new ComponentMesh(this);
+    material = new ComponentMaterial(this);
 
-	AddComponent(transform);
-	AddComponent(mesh);
-	//AddComponent(material);
+    AddComponent(transform);
+    AddComponent(mesh);
 }
 
 GameObject::~GameObject()
@@ -17,20 +18,60 @@ GameObject::~GameObject()
 
 void GameObject::Update()
 {
-	if (isActive)
-	{
-		for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
-		{
-			(*it)->Update();
-		}
-		for (std::vector<GameObject*>::iterator it = children.begin(); it != children.end(); ++it)
-		{
-			(*it)->Update();
-		}
-	}
+    if (isActive)
+    {
+        // Actualizar componentes
+        for (auto* component : components)
+        {
+            component->Update();
+        }
 
-	
+        // Actualizar hijos
+        for (auto* child : children)
+        {
+            child->Update();
+        }
+
+        // Generar bounding box si hay una malla asociada
+        if (mesh)
+        {
+            mesh->GenerateBoundingBox();
+        }
+
+        // Combinar bounding boxes de los hijos
+        GenerateCombinedBoundingBox();
+    }
 }
+
+void GameObject::GenerateCombinedBoundingBox()
+{
+    if (!mesh || mesh->vertices.empty())
+    {
+        // Si no hay malla, inicializa una bounding box vacía
+        boundingBox = AABB(glm::vec3(0.0f), glm::vec3(0.0f));
+    }
+    else
+    {
+        // Usa la bounding box de la malla del GameObject
+        boundingBox = mesh->boundingBox;
+    }
+
+    // Expandir la bounding box con las de los hijos
+    for (auto* child : children)
+    {
+        if (child->mesh)
+        {
+            boundingBox.min.x = std::min(boundingBox.min.x, child->boundingBox.min.x);
+            boundingBox.min.y = std::min(boundingBox.min.y, child->boundingBox.min.y);
+            boundingBox.min.z = std::min(boundingBox.min.z, child->boundingBox.min.z);
+
+            boundingBox.max.x = std::max(boundingBox.max.x, child->boundingBox.max.x);
+            boundingBox.max.y = std::max(boundingBox.max.y, child->boundingBox.max.y);
+            boundingBox.max.z = std::max(boundingBox.max.z, child->boundingBox.max.z);
+        }
+    }
+}
+
 
 void GameObject::Enable()
 {
@@ -117,7 +158,6 @@ Component* GameObject::GetComponent(ComponentType type)
 	return nullptr;
 }
 
-
 json GameObject::SerializeToJson() const
 {
     json gameObjectJson;
@@ -132,6 +172,12 @@ json GameObject::SerializeToJson() const
     // Serializar material si existe
     gameObjectJson["material"] = SerializeMaterial();
 
+    // Serializar Bounding Box
+    gameObjectJson["bounding_box"] = {
+        {"min", {boundingBox.min.x, boundingBox.min.y, boundingBox.min.z}},
+        {"max", {boundingBox.max.x, boundingBox.max.y, boundingBox.max.z}}
+    };
+
     // Serializar hijos
     if (!children.empty()) {
         json childrenJson = json::array();
@@ -143,6 +189,7 @@ json GameObject::SerializeToJson() const
 
     return gameObjectJson;
 }
+
 
 json GameObject::SerializeTransform() const
 {
