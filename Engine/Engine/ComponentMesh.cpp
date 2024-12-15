@@ -23,6 +23,7 @@ void ComponentMesh::Update() {
     ComponentTransform* transform = gameObject->transform;
 
     if (transform != nullptr) {
+        // Configurar la matriz de transformación global para el objeto
         glPushMatrix();
         glMultMatrixf(glm::value_ptr(transform->globalTransform));
     }
@@ -47,6 +48,12 @@ void ComponentMesh::Update() {
                 app->editor->preferencesWindow->faceNormalColor
             );
         }
+
+        // Asegúrate de que la AABB esté actualizada antes de dibujarla
+        boundingBox = mesh->GetBoundingBox();  // Actualiza la AABB
+
+        // Dibujar la caja delimitadora AABB
+        boundingBox.DrawAABB(transform->globalTransform);
     }
 
     if (transform != nullptr) glPopMatrix();

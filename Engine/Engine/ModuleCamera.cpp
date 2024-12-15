@@ -12,12 +12,11 @@ ModuleCamera::ModuleCamera(App* app) : Module(app)
 	Y = glm::vec3(0.0f, 1.0f, 0.0f);
 	Z = glm::vec3(0.0f, 0.0f, 1.0f);
 
-	pos = glm::vec3(0.0f, 5.0f, 5.0f);
+	pos = glm::vec3(0.0f, 5.0f, 10.0f); // Ajusta la posición inicial para ver más
 	ref = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-ModuleCamera::~ModuleCamera()
-{}
+ModuleCamera::~ModuleCamera() {}
 
 bool ModuleCamera::Start()
 {
@@ -185,22 +184,21 @@ void ModuleCamera::RotateCamera(int dx, int dy)
 	CalculateViewMatrix();
 }
 
-
 void ModuleCamera::FrameSelected()
 {
 	if (app->editor->selectedGameObject)
 	{
 		pos = glm::vec3(
 			app->editor->selectedGameObject->transform->position.x,
-			app->editor->selectedGameObject->transform->position.y + 5.0f,
-			app->editor->selectedGameObject->transform->position.z + 5.0f
+			app->editor->selectedGameObject->transform->position.y + 10.0f,  // Ajusta la altura
+			app->editor->selectedGameObject->transform->position.z + 10.0f   // Ajusta la distancia
 		);
 		ref = app->editor->selectedGameObject->transform->position;
 		LookAt(ref);
 	}
 	else
 	{
-		pos = glm::vec3(0.0f, 5.0f, 5.0f);
+		pos = glm::vec3(0.0f, 5.0f, 20.0f); // Asegura que la cámara vea bien
 		ref = glm::vec3(0.0f, 0.0f, 0.0f);
 		LookAt(ref);
 	}

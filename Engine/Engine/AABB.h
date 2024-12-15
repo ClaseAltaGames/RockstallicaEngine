@@ -1,5 +1,8 @@
 #pragma once
 #include <glm/vec3.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <GL/glew.h>
 #include <algorithm>
 
 class AABB {
@@ -18,6 +21,9 @@ public:
     void Update(const glm::vec3& point);
 
 	//Draw the bounding box
-	void DrawAABB() const;
+	void DrawAABB(const glm::mat4& modelTransform) const;
+
+	//get the AABB in world space
+	AABB GetAABB(const glm::mat4& modelTransform) const;
 };
 

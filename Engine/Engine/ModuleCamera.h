@@ -4,7 +4,6 @@
 #include "glm/glm.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
-
 #include "ModuleInput.h"
 
 class ModuleCamera : public Module
@@ -24,11 +23,11 @@ public:
 	glm::mat4 GetProjectionMatrix() const;
 
 	void SetAsGameCamera(bool isGameCamera) { this->isGameCamera = isGameCamera; }
-
 	bool IsGameCamera() const { return isGameCamera; }
 
 public:
 	bool isGameCamera = false;
+
 	void HandleMovement(glm::vec3& newPos, float speed, float fastSpeed);
 	void HandleZoom(float zoomSpeed);
 	void HandleRotation();
@@ -36,13 +35,12 @@ public:
 	void CalculateViewMatrix();
 	glm::vec3 RotateVector(glm::vec3 const& vector, float angle, glm::vec3 const& axis);
 	void SetPosition(const glm::vec3& position);
-
 	void SetCursor(CursorType cursorType);
 
 public:
 	float fov = 60.0f;
-	float nearPlane = 0.125f;
-	float farPlane = 512.0f;
+	float nearPlane = 0.1f;  // Ajustado para mejor visibilidad
+	float farPlane = 1000.0f; // Aumentado para que se vea más lejos
 	int screenWidth, screenHeight;
 
 private:
