@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "AABB.h" // Incluye tu clase AABB
+#include "AABB.h"
 
 struct Plane {
     glm::vec3 normal;
@@ -12,11 +12,14 @@ struct Plane {
     float DistanceToPoint(const glm::vec3& point) const;
 };
 
-struct Frustum {
+class Frustum {
+public:
+    Frustum();
+	~Frustum();
+
     Plane planes[6];
 
     bool IsPointInside(const glm::vec3& point) const;
     bool IsAABBInside(const AABB& box) const;
+    void ExtractFrustumPlanes(Frustum& frustum, const glm::mat4& viewProjectionMatrix);
 };
-
-void ExtractFrustumPlanes(Frustum& frustum, const glm::mat4& viewProjectionMatrix);

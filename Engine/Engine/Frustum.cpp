@@ -1,5 +1,11 @@
 #include "Frustum.h"
 
+Frustum::Frustum() {
+}
+
+Frustum::~Frustum() {
+}
+
 float Plane::DistanceToPoint(const glm::vec3& point) const {
     return glm::dot(normal, point) + distance;
 }
@@ -53,7 +59,7 @@ bool Frustum::IsAABBInside(const AABB& box) const {
     return true;
 }
 
-void ExtractFrustumPlanes(Frustum& frustum, const glm::mat4& viewProjectionMatrix) {
+void Frustum::ExtractFrustumPlanes(Frustum& frustum, const glm::mat4& viewProjectionMatrix) {
     glm::mat4 matrix = glm::transpose(viewProjectionMatrix);
 
     // Plano izquierdo
