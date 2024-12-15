@@ -2,6 +2,7 @@
 #include "App.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include "glm/glm.hpp"
 
 using json = nlohmann::json;
 
@@ -71,102 +72,82 @@ GameObject* ModuleScene::GetGameObjectByName(const char* name)
 	return nullptr;
 }
 
+
+
+
+#include <nlohmann/json.hpp>
+#include <glm/vec3.hpp>
+
+void to_json(nlohmann::json& j, const glm::vec3& vec) {
+    j = nlohmann::json{ {"x", vec.x}, {"y", vec.y}, {"z", vec.z} };
+}
+
+void from_json(const nlohmann::json& j, glm::vec3& vec) {
+    j.at("x").get_to(vec.x);
+    j.at("y").get_to(vec.y);
+    j.at("z").get_to(vec.z);
+}
+
+
 void ModuleScene::SaveScene(const char* path)
 {
-    // Crear el objeto JSON principal
     json sceneJson;
+    sceneJson["name"] = root->name;
+    sceneJson["gameObjects"] = json::array();
 
-    // Guardar los objetos de la escena recursivamente
-    std::function<void(GameObject*, json&)> SaveGameObject = [&](GameObject* gameObject, json& parentJson) {
-        // Crear un objeto JSON para este GameObject
-        json gameObjectJson;
-        gameObjectJson["name"] = gameObject->name;
-       /* gameObjectJson["position"] = { gameObject->position.x, gameObject->position.y, gameObject->position.z };
-        gameObjectJson["rotation"] = { gameObject->rotation.x, gameObject->rotation.y, gameObject->rotation.z };
-        gameObjectJson["scale"] = { gameObject->scale.x, gameObject->scale.y, gameObject->scale.z };*/
+    // Guardar cada hijo del root como un gameobject en el JSON
+    for (GameObject* child : root->children) {
+        sceneJson["gameObjects"].push_back(child->SerializeToJson());
+    }
 
-        // Recorrer y guardar los hijos
-        for (GameObject* child : gameObject->children)
-        {
-            SaveGameObject(child, gameObjectJson["children"]);
-        }
-
-        // Añadir este GameObject al JSON padre
-        parentJson.push_back(gameObjectJson);
-        };
-
-    // Llamar a la función recursiva para guardar desde la raíz
-    SaveGameObject(root, sceneJson["gameObjects"]);
-
-    // Guardar el JSON en el archivo
     std::string scenePath = std::string(path) + ".scene";
     std::ofstream file(scenePath);
-    if (file.is_open())
-    {
-        file << sceneJson.dump(4); // Formateado con una sangría de 4 espacios
+    if (file.is_open()) {
+        file << sceneJson.dump(4);
         file.close();
         LOG(LogType::LOG_INFO, "Scene saved to %s", scenePath.c_str());
     }
-    else
-    {
+    else {
         LOG(LogType::LOG_ERROR, "Failed to save scene to %s", scenePath.c_str());
     }
 }
 
 void ModuleScene::LoadScene(const char* path)
 {
-    // Cargar el archivo JSON
     std::string scenePath = std::string(path) + ".scene";
     std::ifstream file(scenePath);
-    if (file.is_open())
-    {
+
+    if (file.is_open()) {
         json sceneJson;
         file >> sceneJson;
         file.close();
 
-        // Limpiar la escena actual
+        // Limpiar hijos existentes
         root->children.clear();
 
-        // Si hay objetos en el JSON
-        if (sceneJson.contains("gameObjects"))
-        {
-            json& rootObject = sceneJson["gameObjects"][0]; // Asignar el primer objeto como raíz
-            root->name = rootObject["name"]; // Cambiar el nombre del root a "Escena"
+        // Restaurar nombre de la escena
+        if (sceneJson.contains("name")) {
+            root->name = sceneJson["name"];
+        }
 
-            // Cargar los hijos de "Escena"
-            std::function<void(json&, GameObject*)> LoadGameObject = [&](json& gameObjectJson, GameObject* parent) {
-                // Crear un GameObject hijo
-                const std::string& name = gameObjectJson["name"];
-                GameObject* gameObject = CreateGameObject(name.c_str(), parent);
-
-                // Recorrer y cargar los hijos
-                if (gameObjectJson.contains("children"))
-                {
-                    for (json& childJson : gameObjectJson["children"])
-                    {
-                        LoadGameObject(childJson, gameObject);
-                    }
-                }
-                };
-
-            // Procesar los hijos de la raíz
-            if (rootObject.contains("children"))
-            {
-                for (json& childJson : rootObject["children"])
-                {
-                    LoadGameObject(childJson, root);
-                }
+        // Cargar GameObjects
+        if (sceneJson.contains("gameObjects")) {
+            for (const auto& gameObjectJson : sceneJson["gameObjects"]) {
+                GameObject* newGameObject = new GameObject(
+                    gameObjectJson["name"].get<std::string>().c_str(),
+                    root
+                );
+                newGameObject->DeserializeFromJson(gameObjectJson);
+                root->children.push_back(newGameObject);
             }
 
             LOG(LogType::LOG_INFO, "Scene loaded from %s", scenePath.c_str());
         }
-        else
-        {
+        else {
             LOG(LogType::LOG_ERROR, "No gameObjects found in %s", scenePath.c_str());
         }
     }
-    else
-    {
+    else {
         LOG(LogType::LOG_ERROR, "Failed to load scene from %s", scenePath.c_str());
     }
 }
