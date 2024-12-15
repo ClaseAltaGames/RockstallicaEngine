@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AABB.cpp" />
     <ClCompile Include="AboutWindow.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Component.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AABB.h" />
     <ClInclude Include="AboutWindow.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="Component.h" />
