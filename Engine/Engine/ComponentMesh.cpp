@@ -1,4 +1,4 @@
-#define NOMINMAX 
+#define NOMINMAX
 #include "ComponentMesh.h"
 #include "App.h"
 #include <glm/gtc/type_ptr.hpp>
@@ -12,7 +12,8 @@ using json = nlohmann::json;
 ComponentMesh::ComponentMesh(GameObject* gameObject)
     : Component(gameObject, ComponentType::MESH),
     mesh(nullptr),
-    boundingBox(AABB(glm::vec3(0.0f), glm::vec3(0.0f))) // Corrección aquí
+    boundingBox(AABB(glm::vec3(0.0f), glm::vec3(0.0f))),  // AABB inicializada
+    showBoundingBox(true)  // Nueva variable para controlar la visibilidad de AABB
 {
 }
 
@@ -52,9 +53,11 @@ void ComponentMesh::Update() {
         // Asegúrate de que la AABB esté actualizada antes de dibujarla
         boundingBox = mesh->GetBoundingBox();  // Actualiza la AABB
 
-        // Dibujar la caja delimitadora AABB
-        if (app->editor->selectedGameObject == gameObject) {
-            boundingBox.DrawAABB(transform->globalTransform);
+        // Dibujar la caja delimitadora AABB si está habilitada
+        if (showBoundingBox) {
+            if (app->editor->selectedGameObject == gameObject) {
+                boundingBox.DrawAABB(transform->globalTransform);
+            }
         }
     }
 
@@ -80,6 +83,8 @@ void ComponentMesh::OnEditor() {
 
             ImGui::Checkbox("Vertex Normals", &showVertexNormals);
             ImGui::Checkbox("Face Normals", &showFaceNormals);
+
+            ImGui::Checkbox("Show Bounding Box", &showBoundingBox);
         }
     }
 }

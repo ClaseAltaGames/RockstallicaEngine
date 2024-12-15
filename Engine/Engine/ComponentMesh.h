@@ -41,4 +41,5 @@ private:
 
     bool showVertexNormals = false;
     bool showFaceNormals = false;
+	bool showBoundingBox = false;
 };
