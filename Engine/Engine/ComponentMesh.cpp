@@ -53,7 +53,9 @@ void ComponentMesh::Update() {
         boundingBox = mesh->GetBoundingBox();  // Actualiza la AABB
 
         // Dibujar la caja delimitadora AABB
-        boundingBox.DrawAABB(transform->globalTransform);
+        if (app->editor->selectedGameObject == gameObject) {
+            boundingBox.DrawAABB(transform->globalTransform);
+        }
     }
 
     if (transform != nullptr) glPopMatrix();
