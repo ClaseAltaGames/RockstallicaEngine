@@ -268,3 +268,8 @@ void ModuleCamera::SetPosition(const glm::vec3& position)
 	pos = position;
 	LookAt(ref);
 }
+
+glm::vec3 GetRayFromScreenCoords(int x, int y) {
+	// Implement the function to convert screen coordinates to a ray
+	return glm::vec3();
+}

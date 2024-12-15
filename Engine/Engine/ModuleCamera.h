@@ -36,6 +36,8 @@ public:
 	void CalculateViewMatrix();
 	glm::vec3 RotateVector(glm::vec3 const& vector, float angle, glm::vec3 const& axis);
 	void SetPosition(const glm::vec3& position);
+	glm::vec3 GetPosition() const { return pos; } 
+	glm::vec3 GetRayFromScreenCoords(int x, int y);
 
 	void SetCursor(CursorType cursorType);
 

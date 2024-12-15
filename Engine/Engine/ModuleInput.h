@@ -78,6 +78,7 @@ public:
 		return mouse_y_motion;
 	}
 
+	void HandleMouseClick(int button);
 private:
 	void SetCursor();
 	void CreateCursors();

@@ -151,3 +151,15 @@ void ModuleScene::LoadScene(const char* path)
         LOG(LogType::LOG_ERROR, "Failed to load scene from %s", scenePath.c_str());
     }
 }
+
+std::vector<GameObject*> ModuleScene::GetAllGameObjects() {
+    std::vector<GameObject*> allGameObjects;
+    std::function<void(GameObject*)> getAllChildren = [&](GameObject* gameObject) {
+        allGameObjects.push_back(gameObject);
+        for (GameObject* child : gameObject->children) {
+            getAllChildren(child);
+        }
+        };
+    getAllChildren(root);
+    return allGameObjects;
+}

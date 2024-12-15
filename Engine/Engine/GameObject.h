@@ -6,6 +6,7 @@
 #include "ComponentMaterial.h"
 #include <string>
 #include <vector>
+#include "AABB.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -26,6 +27,9 @@ public:
 
     Component* AddComponent(Component* component);
     Component* GetComponent(ComponentType type);
+
+    template <typename T>
+    T* GetComponent();
 
 	json SerializeToJson() const;
     void DeserializeFromJson(const json& gameObjectJson);
@@ -49,5 +53,17 @@ private:
 	json SerializeTransform() const;
 	json SerializeMesh() const;
 	json SerializeMaterial() const;
+
+
+public:
+template <>
+AABB* GetComponent<AABB>() {
+    for (Component* component : components) {
+        if (AABB* aabb = dynamic_cast<AABB*>(component)) {
+            return aabb;
+        }
+    }
+    return nullptr;
+}
 
 };

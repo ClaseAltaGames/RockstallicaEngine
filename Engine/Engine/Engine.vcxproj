@@ -140,6 +140,7 @@
     <ClCompile Include="ConsoleWindow.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="GetRayFromScreenCoords.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="HierarchyWindow.cpp" />
     <ClCompile Include="InspectorWindow.cpp" />
@@ -159,6 +160,7 @@
     <ClCompile Include="PerformanceWindow.cpp" />
     <ClCompile Include="PreferencesWindow.cpp" />
     <ClCompile Include="ProjectWindow.cpp" />
+    <ClCompile Include="RayIntersectsAABB.cpp" />
     <ClCompile Include="SceneWindow.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureImporter.cpp" />
@@ -175,6 +177,7 @@
     <ClInclude Include="EditorWindow.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameWindow.h" />
+    <ClInclude Include="GetRayFromScreenCoords.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="HierarchyWindow.h" />
     <ClInclude Include="InspectorWindow.h" />
@@ -194,6 +197,7 @@
     <ClInclude Include="PerformanceWindow.h" />
     <ClInclude Include="PreferencesWindow.h" />
     <ClInclude Include="ProjectWindow.h" />
+    <ClInclude Include="RayIntersectsAABB.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SceneWindow.h" />
     <ClInclude Include="Texture.h" />

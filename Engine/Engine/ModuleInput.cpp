@@ -1,5 +1,8 @@
 #include "ModuleInput.h"
 #include "App.h"
+#include "AABB.h"
+#include "GetRayFromScreenCoords.h"
+#include "RayIntersectsAABB.h"
 
 #include <string>
 
@@ -218,4 +221,25 @@ void ModuleInput::MakeCursorTransparent(SDL_Surface* surface)
 	}
 
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+}
+
+glm::vec3 GetRayFromScreenCoords(int mouseX, int mouseY);
+
+void ModuleInput::HandleMouseClick(int button) {
+	if (button == SDL_BUTTON_LEFT) {
+		glm::vec3 rayOrigin = app->camera->GetPosition();
+		glm::vec3 rayDir = GetRayFromScreenCoords(mouse_x, mouse_y);
+
+		for (GameObject* obj : app->scene->GetAllGameObjects()) {
+			AABB* aabb = obj->GetComponent<AABB>();
+			if (aabb) {
+				float t;
+				if (RayIntersectsAABB(rayOrigin, rayDir, *aabb, t)) {
+					// Handle object selection
+					app->editor->selectedGameObject = obj;
+					break;
+				}
+			}
+		}
+	}
 }

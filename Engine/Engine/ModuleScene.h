@@ -25,6 +25,9 @@ public:
 	//load scene
 	void LoadScene(const char* path);
 
+	std::vector<GameObject*> GetAllGameObjects();
+
+
 public:
 	GameObject* root = nullptr;
 };
