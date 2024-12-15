@@ -1,68 +1,57 @@
-#include "AABB.h"
-#include "glm/glm.hpp"
+#include "Frustum.h"
 
-struct Plane {
-    glm::vec3 normal;
-    float distance;
+float Plane::DistanceToPoint(const glm::vec3& point) const {
+    return glm::dot(normal, point) + distance;
+}
 
-    float DistanceToPoint(const glm::vec3& point) const {
-        return glm::dot(normal, point) + distance;
-    }
-};
-
-struct Frustum {
-    Plane planes[6];
-
-    bool IsPointInside(const glm::vec3& point) const {
-        for (int i = 0; i < 6; ++i) {
-            if (planes[i].DistanceToPoint(point) < 0) {
-                return false;
-            }
+bool Frustum::IsPointInside(const glm::vec3& point) const {
+    for (int i = 0; i < 6; ++i) {
+        if (planes[i].DistanceToPoint(point) < 0) {
+            return false;
         }
-        return true;
     }
+    return true;
+}
 
-    bool IsAABBInside(const AABB& box) const {
-        for (int i = 0; i < 6; ++i) {
-            glm::vec3 positiveVertex = box.max;
-            glm::vec3 negativeVertex = box.min;
+bool Frustum::IsAABBInside(const AABB& box) const {
+    for (int i = 0; i < 6; ++i) {
+        glm::vec3 positiveVertex = box.max;
+        glm::vec3 negativeVertex = box.min;
 
-            // Ajusta cada componente dependiendo del lado del plano
-            if (planes[i].normal.x >= 0) {
-                negativeVertex.x = box.min.x;
-                positiveVertex.x = box.max.x;
-            }
-            else {
-                negativeVertex.x = box.max.x;
-                positiveVertex.x = box.min.x;
-            }
-
-            if (planes[i].normal.y >= 0) {
-                negativeVertex.y = box.min.y;
-                positiveVertex.y = box.max.y;
-            }
-            else {
-                negativeVertex.y = box.max.y;
-                positiveVertex.y = box.min.y;
-            }
-
-            if (planes[i].normal.z >= 0) {
-                negativeVertex.z = box.min.z;
-                positiveVertex.z = box.max.z;
-            }
-            else {
-                negativeVertex.z = box.max.z;
-                positiveVertex.z = box.min.z;
-            }
-
-            if (planes[i].DistanceToPoint(positiveVertex) < 0) {
-                return false;
-            }
+        // Ajusta cada componente dependiendo del lado del plano
+        if (planes[i].normal.x >= 0) {
+            negativeVertex.x = box.min.x;
+            positiveVertex.x = box.max.x;
         }
-        return true;
-    }
-};
+        else {
+            negativeVertex.x = box.max.x;
+            positiveVertex.x = box.min.x;
+        }
 
+        if (planes[i].normal.y >= 0) {
+            negativeVertex.y = box.min.y;
+            positiveVertex.y = box.max.y;
+        }
+        else {
+            negativeVertex.y = box.max.y;
+            positiveVertex.y = box.min.y;
+        }
+
+        if (planes[i].normal.z >= 0) {
+            negativeVertex.z = box.min.z;
+            positiveVertex.z = box.max.z;
+        }
+        else {
+            negativeVertex.z = box.max.z;
+            positiveVertex.z = box.min.z;
+        }
+
+        if (planes[i].DistanceToPoint(positiveVertex) < 0) {
+            return false;
+        }
+    }
+    return true;
+}
 
 void ExtractFrustumPlanes(Frustum& frustum, const glm::mat4& viewProjectionMatrix) {
     glm::mat4 matrix = glm::transpose(viewProjectionMatrix);
