@@ -1,4 +1,85 @@
 {
-    "gameObjects": [],
+    "gameObjects": [
+        {
+            "children": [
+                {
+                    "material": {
+                        "texture_path": "Assets/Textures/Baker_house.png"
+                    },
+                    "mesh": {
+                        "hasMesh": false
+                    },
+                    "name": "Chimney",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "material": {
+                        "texture_path": "Assets/Textures/Baker_house.png"
+                    },
+                    "mesh": {
+                        "hasMesh": false
+                    },
+                    "name": "Baker_house",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "material": {
+                "texture_path": ""
+            },
+            "mesh": {
+                "hasMesh": false
+            },
+            "name": "BakerHouse",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
     "name": "Untitled Scene"
 }

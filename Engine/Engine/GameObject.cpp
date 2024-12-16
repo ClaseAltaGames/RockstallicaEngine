@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include "ComponentMesh.h"
 
 GameObject::GameObject(const char* name, GameObject* parent) : parent(parent), name(name)
 {
