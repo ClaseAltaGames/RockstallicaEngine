@@ -2,6 +2,7 @@
 #pragma once
 #include "Component.h"
 #include "glm/glm.hpp"
+#include "ModuleImporter.h"
 
 class ComponentCamera : public Component
 {
@@ -19,6 +20,8 @@ public:
 
     glm::mat4 GetViewMatrix() const;
     glm::mat4 GetProjectionMatrix() const;
+
+    Icons icon;
 
 public:
     float fov = 60.0f;

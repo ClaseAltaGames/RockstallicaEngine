@@ -19,6 +19,11 @@ void ComponentCamera::Update(float dt)
 
 void ComponentCamera::OnEditor()
 {
+    ImGui::Text("Camera Icon:");
+    if (ImGui::ImageButton((void*)(intptr_t)icon.cameraIcon, ImVec2(32, 32)))
+    {
+        // Acción al hacer clic en el icono, si es necesario
+    }
     if (ImGui::CollapsingHeader("Camera"))
     {
         if (ImGui::DragFloat("FOV", &fov, 1.0f, 1.0f, 120.0f))
