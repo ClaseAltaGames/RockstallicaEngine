@@ -5,6 +5,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
 #include "ModuleInput.h"
+#include "AABB.h"
+#include "Frustum.h"
 
 class ModuleCamera : public Module
 {
@@ -36,6 +38,12 @@ public:
 	glm::vec3 RotateVector(glm::vec3 const& vector, float angle, glm::vec3 const& axis);
 	void SetPosition(const glm::vec3& position);
 	void SetCursor(CursorType cursorType);
+
+	void UpdateFrustum(); // función para actualizar el frustum
+	bool IsAABBVisible(const AABB& aabb); // Función para verificar visibilidad
+	//void ExtractFrustumPlanes(Frustum& frustum, const glm::mat4& viewProjectionMatrix);
+
+	Frustum frustum; // Frustum de la cámara
 
 public:
 	float fov = 60.0f;

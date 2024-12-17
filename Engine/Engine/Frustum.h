@@ -18,6 +18,7 @@ public:
 	~Frustum();
 
     Plane planes[6];
+	glm::vec4 planesArray[6];
 
     bool IsPointInside(const glm::vec3& point) const;
     bool IsAABBInside(const AABB& box) const;
