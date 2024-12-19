@@ -203,41 +203,42 @@ json GameObject::SerializeTransform() const
 json GameObject::SerializeMesh() const
 {
     // Verifica si hay una malla asignada al GameObject
-    if (!mesh || mesh->vertices.empty())
+    if (!mesh->mesh)
     {
         // Si no hay malla, devuelve un JSON indicando que no hay malla
         return { {"hasMesh", false} };
     }
 
     // Serializa los vértices
+
     json verticesJson = json::array();
-    for (const auto& vertex : mesh->vertices)
-    {
+	for (int varCoord = 0; varCoord < mesh->mesh->verticesCount * 3; varCoord+= 3) {
         verticesJson.push_back({
-            {"x", vertex.x},
-            {"y", vertex.y},
-            {"z", vertex.z}
+            {"x", mesh->mesh->vertices[varCoord] },
+            {"y", mesh->mesh->vertices[varCoord + 1]},
+            {"z", mesh->mesh->vertices[varCoord + 2]}
             });
     }
 
     // Serializa los índices
     json indicesJson = json::array();
-    for (const auto& index : mesh->indices)
-    {
-        indicesJson.push_back(index);
-    }
+	for (int i = 0; i < mesh->mesh->indicesCount * 2; i += 2) {
+		indicesJson.push_back({
+			mesh->mesh->indices[i],
+			mesh->mesh->indices[i + 1]
+			});
+	}
 
     // Serializa las normales
     json normalsJson = json::array();
-    for (const auto& normal : mesh->normals)
-    {
-        normalsJson.push_back({
-            {"x", normal.x},
-            {"y", normal.y},
-            {"z", normal.z}
-            });
-    }
-
+	for (int normalsCoord = 0; normalsCoord < mesh->mesh->normalsCount * 3; normalsCoord += 3) {
+		normalsJson.push_back({
+			{"x", mesh->mesh->normals[normalsCoord]},
+			{"y", mesh->mesh->normals[normalsCoord + 1]},
+			{"z", mesh->mesh->normals[normalsCoord + 2]}
+			});
+	}
+        
     // Devuelve un JSON con los datos de la malla
     return {
         {"hasMesh", true},
@@ -256,6 +257,7 @@ json GameObject::SerializeMaterial() const
 
 void GameObject::DeserializeFromJson(const json& gameObjectJson)
 {
+
     // Restaurar nombre
     name = gameObjectJson["name"];
 
@@ -279,14 +281,14 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
         );
     }
 
-    // Restaurar malla
+
     if (gameObjectJson.contains("mesh")) {
         const auto& meshJson = gameObjectJson["mesh"];
 
         // Asegurar que la malla exista
-        if (!mesh) {
+        /*if (!mesh->mesh) {
             mesh = new ComponentMesh(this);
-        }
+        }*/
 
         // Limpiar malla existente
         mesh->vertices.clear();
@@ -295,18 +297,21 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
 
         // Restaurar vértices
         if (meshJson.contains("vertices") && !meshJson["vertices"].empty()) {
-            for (const auto& vertJson : meshJson["vertices"]) {
+            for (const auto& vertexJson : meshJson["vertices"]) {
                 mesh->vertices.push_back(glm::vec3(
-                    vertJson["x"].get<float>(),
-                    vertJson["y"].get<float>(),
-                    vertJson["z"].get<float>()
+                    vertexJson["x"].get<float>(),
+                    vertexJson["y"].get<float>(),
+                    vertexJson["z"].get<float>()
                 ));
             }
         }
 
         // Restaurar índices
         if (meshJson.contains("indices") && !meshJson["indices"].empty()) {
-            mesh->indices = meshJson["indices"].get<std::vector<uint32_t>>();
+            for (const auto& indexJson : meshJson["indices"]) {
+                mesh->indices.push_back(indexJson[0]);
+                mesh->indices.push_back(indexJson[1]);
+            }
         }
 
         // Restaurar normales
@@ -319,26 +324,26 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
                 ));
             }
         }
-    }
 
-    // Restaurar material si existe
-    if (gameObjectJson.contains("material")) {
-        const auto& materialJson = gameObjectJson["material"];
-        if (materialJson.contains("texture_path") && !materialJson["texture_path"].get<std::string>().empty()) {
-            // Cargar textura si es necesario
-            // Esto dependerá de cómo manejes la carga de texturas en tu motor
-            // Podrías hacer algo como:
-            // Texture* texture = app->textureLoader->LoadTexture(materialJson["texture_path"]);
-            //material->AddTexture(texture);
+        // Restaurar material si existe
+        if (gameObjectJson.contains("material")) {
+            const auto& materialJson = gameObjectJson["material"];
+            if (materialJson.contains("texture_path") && !materialJson["texture_path"].get<std::string>().empty()) {
+                // Cargar textura si es necesario
+                // Esto dependerá de cómo manejes la carga de texturas en tu motor
+                // Podrías hacer algo como:
+                // Texture* texture = app->textureLoader->LoadTexture(materialJson["texture_path"]);
+                //material->AddTexture(texture);
+            }
         }
-    }
 
-    // Restaurar hijos
-    if (gameObjectJson.contains("children")) {
-        for (const auto& childJson : gameObjectJson["children"]) {
-            GameObject* child = new GameObject(childJson["name"].get<std::string>().c_str(), this);
-            child->DeserializeFromJson(childJson);
-            children.push_back(child);
+        // Restaurar hijos
+        if (gameObjectJson.contains("children")) {
+            for (const auto& childJson : gameObjectJson["children"]) {
+                GameObject* child = new GameObject(childJson["name"].get<std::string>().c_str(), this);
+                child->DeserializeFromJson(childJson);
+                children.push_back(child);
+            }
         }
     }
 }

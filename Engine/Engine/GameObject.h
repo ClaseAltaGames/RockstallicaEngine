@@ -54,4 +54,5 @@ private:
 	json SerializeMesh() const;
 	json SerializeMaterial() const;
 
+
 };
