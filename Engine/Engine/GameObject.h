@@ -17,6 +17,7 @@ public:
     virtual ~GameObject();
 
     void Update();
+    void GenerateCombinedBoundingBox();
     void Enable();
     void Disable();
 	bool IsEnabled() { return isActive; }
@@ -45,9 +46,13 @@ public:
     bool isActive = true;
     bool isEditing = false;
 
+	// Bounding box
+	AABB boundingBox;
+
 private:
 	json SerializeTransform() const;
 	json SerializeMesh() const;
 	json SerializeMaterial() const;
+
 
 };

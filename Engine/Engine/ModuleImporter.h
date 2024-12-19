@@ -21,6 +21,7 @@ struct Icons
 	GLuint infoIcon = 0;
 	GLuint warningIcon = 0;
 	GLuint errorIcon = 0;
+	GLuint cameraIcon = 0;
 };
 
 class ModuleImporter : public Module

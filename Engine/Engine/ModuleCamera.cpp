@@ -1,5 +1,9 @@
 #include "ModuleCamera.h"
 #include "App.h"
+#include "Frustum.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 ModuleCamera::ModuleCamera(App* app) : Module(app)
 {
@@ -12,12 +16,11 @@ ModuleCamera::ModuleCamera(App* app) : Module(app)
 	Y = glm::vec3(0.0f, 1.0f, 0.0f);
 	Z = glm::vec3(0.0f, 0.0f, 1.0f);
 
-	pos = glm::vec3(0.0f, 5.0f, 5.0f);
+	pos = glm::vec3(0.0f, 5.0f, 10.0f); // Ajusta la posición inicial para ver más
 	ref = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-ModuleCamera::~ModuleCamera()
-{}
+ModuleCamera::~ModuleCamera() {}
 
 bool ModuleCamera::Start()
 {
@@ -47,6 +50,7 @@ bool ModuleCamera::Update(float dt)
 		HandleInput();
 
 	CalculateViewMatrix();
+	UpdateFrustum();
 
 	return true;
 }
@@ -185,22 +189,21 @@ void ModuleCamera::RotateCamera(int dx, int dy)
 	CalculateViewMatrix();
 }
 
-
 void ModuleCamera::FrameSelected()
 {
 	if (app->editor->selectedGameObject)
 	{
 		pos = glm::vec3(
 			app->editor->selectedGameObject->transform->position.x,
-			app->editor->selectedGameObject->transform->position.y + 5.0f,
-			app->editor->selectedGameObject->transform->position.z + 5.0f
+			app->editor->selectedGameObject->transform->position.y + 10.0f,  // Ajusta la altura
+			app->editor->selectedGameObject->transform->position.z + 10.0f   // Ajusta la distancia
 		);
 		ref = app->editor->selectedGameObject->transform->position;
 		LookAt(ref);
 	}
 	else
 	{
-		pos = glm::vec3(0.0f, 5.0f, 5.0f);
+		pos = glm::vec3(0.0f, 5.0f, 20.0f); // Asegura que la cámara vea bien
 		ref = glm::vec3(0.0f, 0.0f, 0.0f);
 		LookAt(ref);
 	}
@@ -268,3 +271,56 @@ void ModuleCamera::SetPosition(const glm::vec3& position)
 	pos = position;
 	LookAt(ref);
 }
+
+void ModuleCamera::UpdateFrustum()
+{
+	glm::mat4 viewMatrix = GetViewMatrix();
+	glm::mat4 projectionMatrix = GetProjectionMatrix();
+	glm::mat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
+
+	frustum.ExtractFrustumPlanes(frustum, viewProjectionMatrix);
+}
+
+bool ModuleCamera::IsAABBVisible(const AABB& aabb)
+{
+	return frustum.IsAABBInside(aabb);
+}
+
+//void ModuleCamera::ExtractFrustumPlanes(Frustum& frustum, const glm::mat4& viewProjectionMatrix)
+//{
+//	frustum.planesArray[0] = glm::vec4(
+//		viewProjectionMatrix[0][3] + viewProjectionMatrix[0][0],
+//		viewProjectionMatrix[1][3] + viewProjectionMatrix[1][0],
+//		viewProjectionMatrix[2][3] + viewProjectionMatrix[2][0],
+//		viewProjectionMatrix[3][3] + viewProjectionMatrix[3][0]);
+//
+//	frustum.planesArray[1] = glm::vec4(
+//		viewProjectionMatrix[0][3] - viewProjectionMatrix[0][0],
+//		viewProjectionMatrix[1][3] - viewProjectionMatrix[1][0],
+//		viewProjectionMatrix[2][3] - viewProjectionMatrix[2][0],
+//		viewProjectionMatrix[3][3] - viewProjectionMatrix[3][0]);
+//
+//	frustum.planesArray[2] = glm::vec4(
+//		viewProjectionMatrix[0][3] + viewProjectionMatrix[0][1],
+//		viewProjectionMatrix[1][3] + viewProjectionMatrix[1][1],
+//		viewProjectionMatrix[2][3] + viewProjectionMatrix[2][1],
+//		viewProjectionMatrix[3][3] + viewProjectionMatrix[3][1]);
+//
+//	frustum.planesArray[3] = glm::vec4(
+//		viewProjectionMatrix[0][3] - viewProjectionMatrix[0][1],
+//		viewProjectionMatrix[1][3] - viewProjectionMatrix[1][1],
+//		viewProjectionMatrix[2][3] - viewProjectionMatrix[2][1],
+//		viewProjectionMatrix[3][3] - viewProjectionMatrix[3][1]);
+//
+//	frustum.planesArray[4] = glm::vec4(
+//		viewProjectionMatrix[0][3] + viewProjectionMatrix[0][2],
+//		viewProjectionMatrix[1][3] + viewProjectionMatrix[1][2],
+//		viewProjectionMatrix[2][3] + viewProjectionMatrix[2][2],
+//		viewProjectionMatrix[3][3] + viewProjectionMatrix[3][2]);
+//
+//	frustum.planesArray[5] = glm::vec4(
+//		viewProjectionMatrix[0][3] - viewProjectionMatrix[0][2],
+//		viewProjectionMatrix[1][3] - viewProjectionMatrix[1][2],
+//		viewProjectionMatrix[2][3] - viewProjectionMatrix[2][2],
+//		viewProjectionMatrix[3][3] - viewProjectionMatrix[3][2]);
+//}

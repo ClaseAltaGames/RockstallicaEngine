@@ -1,15 +1,16 @@
 #include "GameObject.h"
 #include "ComponentMesh.h"
 
-GameObject::GameObject(const char* name, GameObject* parent) : parent(parent), name(name)
+GameObject::GameObject(const char* name, GameObject* parent)
+    : parent(parent), name(name),
+    boundingBox(AABB(glm::vec3(0.0f), glm::vec3(0.0f)))
 {
-	transform = new ComponentTransform(this);
-	mesh = new ComponentMesh(this);
-	material = new ComponentMaterial(this);
+    transform = new ComponentTransform(this);
+    mesh = new ComponentMesh(this);
+    material = new ComponentMaterial(this);
 
-	AddComponent(transform);
-	AddComponent(mesh);
-	//AddComponent(material);
+    AddComponent(transform);
+    AddComponent(mesh);
 }
 
 GameObject::~GameObject()
@@ -18,20 +19,60 @@ GameObject::~GameObject()
 
 void GameObject::Update()
 {
-	if (isActive)
-	{
-		for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
-		{
-			(*it)->Update();
-		}
-		for (std::vector<GameObject*>::iterator it = children.begin(); it != children.end(); ++it)
-		{
-			(*it)->Update();
-		}
-	}
+    if (isActive)
+    {
+        // Actualizar componentes
+        for (auto* component : components)
+        {
+            component->Update();
+        }
 
-	
+        // Actualizar hijos
+        for (auto* child : children)
+        {
+            child->Update();
+        }
+
+        // Generar bounding box si hay una malla asociada
+        if (mesh)
+        {
+            mesh->GenerateBoundingBox();
+        }
+
+        // Combinar bounding boxes de los hijos
+        GenerateCombinedBoundingBox();
+    }
 }
+
+void GameObject::GenerateCombinedBoundingBox()
+{
+    if (!mesh || mesh->vertices.empty())
+    {
+        // Si no hay malla, inicializa una bounding box vacía
+        boundingBox = AABB(glm::vec3(0.0f), glm::vec3(0.0f));
+    }
+    else
+    {
+        // Usa la bounding box de la malla del GameObject
+        boundingBox = mesh->boundingBox;
+    }
+
+    // Expandir la bounding box con las de los hijos
+    for (auto* child : children)
+    {
+        if (child->mesh)
+        {
+            boundingBox.min.x = std::min(boundingBox.min.x, child->boundingBox.min.x);
+            boundingBox.min.y = std::min(boundingBox.min.y, child->boundingBox.min.y);
+            boundingBox.min.z = std::min(boundingBox.min.z, child->boundingBox.min.z);
+
+            boundingBox.max.x = std::max(boundingBox.max.x, child->boundingBox.max.x);
+            boundingBox.max.y = std::max(boundingBox.max.y, child->boundingBox.max.y);
+            boundingBox.max.z = std::max(boundingBox.max.z, child->boundingBox.max.z);
+        }
+    }
+}
+
 
 void GameObject::Enable()
 {
@@ -118,7 +159,6 @@ Component* GameObject::GetComponent(ComponentType type)
 	return nullptr;
 }
 
-
 json GameObject::SerializeToJson() const
 {
     json gameObjectJson;
@@ -133,6 +173,12 @@ json GameObject::SerializeToJson() const
     // Serializar material si existe
     gameObjectJson["material"] = SerializeMaterial();
 
+    // Serializar Bounding Box
+    gameObjectJson["bounding_box"] = {
+        {"min", {boundingBox.min.x, boundingBox.min.y, boundingBox.min.z}},
+        {"max", {boundingBox.max.x, boundingBox.max.y, boundingBox.max.z}}
+    };
+
     // Serializar hijos
     if (!children.empty()) {
         json childrenJson = json::array();
@@ -144,6 +190,7 @@ json GameObject::SerializeToJson() const
 
     return gameObjectJson;
 }
+
 
 json GameObject::SerializeTransform() const
 {
@@ -157,41 +204,42 @@ json GameObject::SerializeTransform() const
 json GameObject::SerializeMesh() const
 {
     // Verifica si hay una malla asignada al GameObject
-    if (!mesh || mesh->vertices.empty())
+    if (!mesh->mesh)
     {
         // Si no hay malla, devuelve un JSON indicando que no hay malla
         return { {"hasMesh", false} };
     }
 
     // Serializa los vértices
+
     json verticesJson = json::array();
-    for (const auto& vertex : mesh->vertices)
-    {
+	for (int varCoord = 0; varCoord < mesh->mesh->verticesCount * 3; varCoord+= 3) {
         verticesJson.push_back({
-            {"x", vertex.x},
-            {"y", vertex.y},
-            {"z", vertex.z}
+            {"x", mesh->mesh->vertices[varCoord] },
+            {"y", mesh->mesh->vertices[varCoord + 1]},
+            {"z", mesh->mesh->vertices[varCoord + 2]}
             });
     }
 
     // Serializa los índices
     json indicesJson = json::array();
-    for (const auto& index : mesh->indices)
-    {
-        indicesJson.push_back(index);
-    }
+	for (int i = 0; i < mesh->mesh->indicesCount * 2; i += 2) {
+		indicesJson.push_back({
+			mesh->mesh->indices[i],
+			mesh->mesh->indices[i + 1]
+			});
+	}
 
     // Serializa las normales
     json normalsJson = json::array();
-    for (const auto& normal : mesh->normals)
-    {
-        normalsJson.push_back({
-            {"x", normal.x},
-            {"y", normal.y},
-            {"z", normal.z}
-            });
-    }
-
+	for (int normalsCoord = 0; normalsCoord < mesh->mesh->normalsCount * 3; normalsCoord += 3) {
+		normalsJson.push_back({
+			{"x", mesh->mesh->normals[normalsCoord]},
+			{"y", mesh->mesh->normals[normalsCoord + 1]},
+			{"z", mesh->mesh->normals[normalsCoord + 2]}
+			});
+	}
+        
     // Devuelve un JSON con los datos de la malla
     return {
         {"hasMesh", true},
@@ -210,6 +258,7 @@ json GameObject::SerializeMaterial() const
 
 void GameObject::DeserializeFromJson(const json& gameObjectJson)
 {
+
     // Restaurar nombre
     name = gameObjectJson["name"];
 
@@ -233,14 +282,14 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
         );
     }
 
-    // Restaurar malla
+
     if (gameObjectJson.contains("mesh")) {
         const auto& meshJson = gameObjectJson["mesh"];
 
         // Asegurar que la malla exista
-        if (!mesh) {
+        /*if (!mesh->mesh) {
             mesh = new ComponentMesh(this);
-        }
+        }*/
 
         // Limpiar malla existente
         mesh->vertices.clear();
@@ -249,18 +298,21 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
 
         // Restaurar vértices
         if (meshJson.contains("vertices") && !meshJson["vertices"].empty()) {
-            for (const auto& vertJson : meshJson["vertices"]) {
+            for (const auto& vertexJson : meshJson["vertices"]) {
                 mesh->vertices.push_back(glm::vec3(
-                    vertJson["x"].get<float>(),
-                    vertJson["y"].get<float>(),
-                    vertJson["z"].get<float>()
+                    vertexJson["x"].get<float>(),
+                    vertexJson["y"].get<float>(),
+                    vertexJson["z"].get<float>()
                 ));
             }
         }
 
         // Restaurar índices
         if (meshJson.contains("indices") && !meshJson["indices"].empty()) {
-            mesh->indices = meshJson["indices"].get<std::vector<uint32_t>>();
+            for (const auto& indexJson : meshJson["indices"]) {
+                mesh->indices.push_back(indexJson[0]);
+                mesh->indices.push_back(indexJson[1]);
+            }
         }
 
         // Restaurar normales
@@ -273,26 +325,26 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
                 ));
             }
         }
-    }
 
-    // Restaurar material si existe
-    if (gameObjectJson.contains("material")) {
-        const auto& materialJson = gameObjectJson["material"];
-        if (materialJson.contains("texture_path") && !materialJson["texture_path"].get<std::string>().empty()) {
-            // Cargar textura si es necesario
-            // Esto dependerá de cómo manejes la carga de texturas en tu motor
-            // Podrías hacer algo como:
-            // Texture* texture = app->textureLoader->LoadTexture(materialJson["texture_path"]);
-            //material->AddTexture(texture);
+        // Restaurar material si existe
+        if (gameObjectJson.contains("material")) {
+            const auto& materialJson = gameObjectJson["material"];
+            if (materialJson.contains("texture_path") && !materialJson["texture_path"].get<std::string>().empty()) {
+                // Cargar textura si es necesario
+                // Esto dependerá de cómo manejes la carga de texturas en tu motor
+                // Podrías hacer algo como:
+                // Texture* texture = app->textureLoader->LoadTexture(materialJson["texture_path"]);
+                //material->AddTexture(texture);
+            }
         }
-    }
 
-    // Restaurar hijos
-    if (gameObjectJson.contains("children")) {
-        for (const auto& childJson : gameObjectJson["children"]) {
-            GameObject* child = new GameObject(childJson["name"].get<std::string>().c_str(), this);
-            child->DeserializeFromJson(childJson);
-            children.push_back(child);
+        // Restaurar hijos
+        if (gameObjectJson.contains("children")) {
+            for (const auto& childJson : gameObjectJson["children"]) {
+                GameObject* child = new GameObject(childJson["name"].get<std::string>().c_str(), this);
+                child->DeserializeFromJson(childJson);
+                children.push_back(child);
+            }
         }
     }
 }

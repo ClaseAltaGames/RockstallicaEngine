@@ -27,6 +27,7 @@ bool ModuleImporter::Awake()
 	icons.ddsFileIcon = textureImporter->LoadIconImage("Engine/Icons/file_dds.png");
 	icons.fbxFileIcon = textureImporter->LoadIconImage("Engine/Icons/file_fbx.png");
 	icons.dotsIcon = textureImporter->LoadIconImage("Engine/Icons/dots.png");
+	icons.cameraIcon = textureImporter->LoadIconImage("Engine/Icons/camera.png");
 
 	// Console
 	icons.infoIcon = textureImporter->LoadIconImage("Engine/Icons/info.png");

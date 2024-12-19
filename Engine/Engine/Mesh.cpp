@@ -160,3 +160,20 @@ void Mesh::CleanUpMesh()
 	normals = nullptr;
 	texCoords = nullptr;
 }
+
+AABB Mesh::GetBoundingBox() const {
+	if (verticesCount == 0) {
+		return AABB(glm::vec3(std::numeric_limits<float>::max()), glm::vec3(std::numeric_limits<float>::lowest()));
+	}
+
+	glm::vec3 minPoint = glm::vec3(vertices[0], vertices[1], vertices[2]);
+	glm::vec3 maxPoint = glm::vec3(vertices[0], vertices[1], vertices[2]);
+
+	for (uint i = 0; i < verticesCount; ++i) {
+		glm::vec3 vertex(vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
+		minPoint = glm::min(minPoint, vertex);
+		maxPoint = glm::max(maxPoint, vertex);
+	}
+
+	return AABB(minPoint, maxPoint);
+}

@@ -1,5 +1,6 @@
 #include "HierarchyWindow.h"
 #include "App.h"
+#include "ComponentCamera.h"
 
 #include <algorithm>
 
@@ -28,6 +29,12 @@ void HierarchyWindow::DrawWindow()
 		{
 			app->scene->CreateGameObject("GameObject", app->scene->root);
 			app->editor->selectedGameObject = app->scene->root->children.back();
+		}
+		if (ImGui::MenuItem("Camera"))
+		{
+			GameObject* cameraObj = app->scene->CreateGameObject("Camera", app->scene->root);
+			cameraObj->AddComponent(new ComponentCamera(cameraObj));
+			app->editor->selectedGameObject = cameraObj;
 		}
 		if (ImGui::BeginMenu("3D Object"))
 		{
