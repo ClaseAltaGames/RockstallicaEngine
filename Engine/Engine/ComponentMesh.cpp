@@ -89,33 +89,8 @@ void ComponentMesh::OnEditor() {
     }
 }
 
-void ComponentMesh::Save(json& meshJson) {
-    meshJson["has_mesh"] = true;
-
-    if (!vertices.empty()) {
-        for (const auto& vertex : vertices) {
-            meshJson["vertices"].push_back({ {"x", vertex.x}, {"y", vertex.y}, {"z", vertex.z} });
-        }
-    }
-
-    if (!indices.empty()) {
-        meshJson["indices"] = indices;
-    }
-
-    if (!normals.empty()) {
-        for (const auto& normal : normals) {
-            meshJson["normals"].push_back({ {"x", normal.x}, {"y", normal.y}, {"z", normal.z} });
-        }
-    }
-
-    meshJson["bounding_box"] = {
-        {"min", {{"x", boundingBox.min.x}, {"y", boundingBox.min.y}, {"z", boundingBox.min.z}}},
-        {"max", {{"x", boundingBox.max.x}, {"y", boundingBox.max.y}, {"z", boundingBox.max.z}}}
-    };
-}
-
 void ComponentMesh::GenerateBoundingBox() {
-    if (vertices.empty()) {
+    if (!mesh || mesh->verticesCount == 0) {
         boundingBox = AABB(
             glm::vec3(std::numeric_limits<float>::max()),
             glm::vec3(std::numeric_limits<float>::lowest())
@@ -123,14 +98,15 @@ void ComponentMesh::GenerateBoundingBox() {
         return;
     }
 
-    glm::vec3 minPoint = vertices[0];
-    glm::vec3 maxPoint = vertices[0];
+    glm::vec3 minPoint = glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 maxPoint = glm::vec3(std::numeric_limits<float>::lowest());
 
-    for (const auto& vertex : vertices) {
+    for (uint i = 0; i < mesh->verticesCount; ++i) {
+        glm::vec3 vertex = glm::make_vec3(&mesh->vertices[i * 3]);
         minPoint.x = std::min(minPoint.x, vertex.x);
         minPoint.y = std::min(minPoint.y, vertex.y);
         minPoint.z = std::min(minPoint.z, vertex.z);
-
+        
         maxPoint.x = std::max(maxPoint.x, vertex.x);
         maxPoint.y = std::max(maxPoint.y, vertex.y);
         maxPoint.z = std::max(maxPoint.z, vertex.z);

@@ -37,7 +37,7 @@ public:
     std::string name;
 
     ComponentTransform* transform;
-    ComponentMesh* mesh;
+    ComponentMesh* componentMesh;
     ComponentMaterial* material;
 
     std::vector<Component*> components;

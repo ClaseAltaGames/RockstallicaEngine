@@ -18,16 +18,6 @@ public:
     void Update() override;
     void OnEditor() override;
 
-    std::vector<glm::vec3> vertices;  // Vertex coordinates
-    std::vector<uint32_t> indices;    // Triangle indices
-    std::vector<glm::vec3> normals;   // Normals
-
-    const std::vector<glm::vec3>& GetVertices() { return vertices; }
-    const std::vector<uint32_t>& GetIndices() { return indices; }
-    const std::vector<glm::vec3>& GetNormals() { return normals; }
-
-    void Save(json& meshJson);
-
     // New AABB-related methods
     void GenerateBoundingBox();
     AABB GetBoundingBox() const { return boundingBox; }

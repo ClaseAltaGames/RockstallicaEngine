@@ -420,9 +420,9 @@ void ModelImporter::LoadNodeFromBuffer(const char* buffer, size_t& currentPos, s
 
 			if (meshIndex < meshes.size())
 			{
-				ComponentMesh* componentMesh = dynamic_cast<ComponentMesh*>(gameObjectNode->AddComponent(gameObjectNode->mesh));
+				ComponentMesh* componentMesh = dynamic_cast<ComponentMesh*>(gameObjectNode->AddComponent(gameObjectNode->componentMesh));
 				componentMesh->mesh = meshes[meshIndex];
-				gameObjectNode->mesh = componentMesh;
+				gameObjectNode->componentMesh = componentMesh;
 
 				if (!meshes[meshIndex]->diffuseTexturePath.empty())
 				{

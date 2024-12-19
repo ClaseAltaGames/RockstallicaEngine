@@ -5,12 +5,14 @@ GameObject::GameObject(const char* name, GameObject* parent)
     : parent(parent), name(name),
     boundingBox(AABB(glm::vec3(0.0f), glm::vec3(0.0f)))
 {
+
+
     transform = new ComponentTransform(this);
-    mesh = new ComponentMesh(this);
+    componentMesh = new ComponentMesh(this);
     material = new ComponentMaterial(this);
 
     AddComponent(transform);
-    AddComponent(mesh);
+    AddComponent(componentMesh);
 }
 
 GameObject::~GameObject()
@@ -34,9 +36,9 @@ void GameObject::Update()
         }
 
         // Generar bounding box si hay una malla asociada
-        if (mesh)
+        if (componentMesh)
         {
-            mesh->GenerateBoundingBox();
+            componentMesh->GenerateBoundingBox();
         }
 
         // Combinar bounding boxes de los hijos
@@ -46,21 +48,21 @@ void GameObject::Update()
 
 void GameObject::GenerateCombinedBoundingBox()
 {
-    if (!mesh || mesh->vertices.empty())
+    if (!componentMesh || !componentMesh->mesh || componentMesh->mesh->verticesCount == 0)
     {
-        // Si no hay malla, inicializa una bounding box vacía
+        // Si no hay malla o no hay vértices, inicializa una bounding box vacía
         boundingBox = AABB(glm::vec3(0.0f), glm::vec3(0.0f));
     }
     else
     {
         // Usa la bounding box de la malla del GameObject
-        boundingBox = mesh->boundingBox;
+        boundingBox = componentMesh->boundingBox;
     }
 
     // Expandir la bounding box con las de los hijos
     for (auto* child : children)
     {
-        if (child->mesh)
+        if (child->componentMesh && child->componentMesh->mesh && child->componentMesh->mesh->verticesCount > 0)
         {
             boundingBox.min.x = std::min(boundingBox.min.x, child->boundingBox.min.x);
             boundingBox.min.y = std::min(boundingBox.min.y, child->boundingBox.min.y);
@@ -142,7 +144,7 @@ Component* GameObject::AddComponent(Component* component)
     // Establecer el puntero mesh si el componente es de tipo MESH
     if (component->type == ComponentType::MESH)
     {
-        mesh = static_cast<ComponentMesh*>(component);
+        componentMesh = static_cast<ComponentMesh*>(component);
     }
 
 	return component;
@@ -204,7 +206,7 @@ json GameObject::SerializeTransform() const
 json GameObject::SerializeMesh() const
 {
     // Verifica si hay una malla asignada al GameObject
-    if (!mesh->mesh)
+    if (!componentMesh->mesh)
     {
         // Si no hay malla, devuelve un JSON indicando que no hay malla
         return { {"hasMesh", false} };
@@ -213,30 +215,39 @@ json GameObject::SerializeMesh() const
     // Serializa los vértices
 
     json verticesJson = json::array();
-	for (int varCoord = 0; varCoord < mesh->mesh->verticesCount * 3; varCoord+= 3) {
+	for (int varCoord = 0; varCoord < componentMesh->mesh->verticesCount * 3; varCoord+= 3) {
         verticesJson.push_back({
-            {"x", mesh->mesh->vertices[varCoord] },
-            {"y", mesh->mesh->vertices[varCoord + 1]},
-            {"z", mesh->mesh->vertices[varCoord + 2]}
+            {"x", componentMesh->mesh->vertices[varCoord] },
+            {"y", componentMesh->mesh->vertices[varCoord + 1]},
+            {"z", componentMesh->mesh->vertices[varCoord + 2]}
             });
     }
 
     // Serializa los índices
     json indicesJson = json::array();
-	for (int i = 0; i < mesh->mesh->indicesCount * 2; i += 2) {
+	for (int i = 0; i < componentMesh->mesh->indicesCount * 3; i += 3) {
 		indicesJson.push_back({
-			mesh->mesh->indices[i],
-			mesh->mesh->indices[i + 1]
+            componentMesh->mesh->indices[i],
+            componentMesh->mesh->indices[i + 1],
+            componentMesh->mesh->indices[i + 2]
 			});
 	}
 
     // Serializa las normales
     json normalsJson = json::array();
-	for (int normalsCoord = 0; normalsCoord < mesh->mesh->normalsCount * 3; normalsCoord += 3) {
+	for (int normalsCoord = 0; normalsCoord < componentMesh->mesh->normalsCount * 3; normalsCoord += 3) {
 		normalsJson.push_back({
-			{"x", mesh->mesh->normals[normalsCoord]},
-			{"y", mesh->mesh->normals[normalsCoord + 1]},
-			{"z", mesh->mesh->normals[normalsCoord + 2]}
+			{"x", componentMesh->mesh->normals[normalsCoord]},
+			{"y", componentMesh->mesh->normals[normalsCoord + 1]},
+			{"z", componentMesh->mesh->normals[normalsCoord + 2]}
+			});
+	}
+
+	json uvJson = json::array();
+	for (int uvCoord = 0; uvCoord < componentMesh->mesh->texCoordsCount * 2; uvCoord += 2) {
+		uvJson.push_back({
+			{"u", componentMesh->mesh->texCoords[uvCoord]},
+			{"v", componentMesh->mesh->texCoords[uvCoord + 1]}
 			});
 	}
         
@@ -245,7 +256,8 @@ json GameObject::SerializeMesh() const
         {"hasMesh", true},
         {"vertices", verticesJson},
         {"indices", indicesJson},
-        {"normals", normalsJson}
+		{"normals", normalsJson},
+		{"uv", uvJson}
     };
 }
 json GameObject::SerializeMaterial() const
@@ -258,7 +270,6 @@ json GameObject::SerializeMaterial() const
 
 void GameObject::DeserializeFromJson(const json& gameObjectJson)
 {
-
     // Restaurar nombre
     name = gameObjectJson["name"];
 
@@ -287,44 +298,68 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
         const auto& meshJson = gameObjectJson["mesh"];
 
         // Asegurar que la malla exista
-        /*if (!mesh->mesh) {
-            mesh = new ComponentMesh(this);
-        }*/
-
-        // Limpiar malla existente
-        mesh->vertices.clear();
-        mesh->indices.clear();
-        mesh->normals.clear();
+        //if (!componentMesh->mesh) {
+        componentMesh = new ComponentMesh(this);
+        componentMesh->mesh = new Mesh();
+        components.push_back(componentMesh);
+       // }
 
         // Restaurar vértices
         if (meshJson.contains("vertices") && !meshJson["vertices"].empty()) {
+			int countVertices = meshJson["vertices"].size();
+			int indexVertices = 0;
+			componentMesh->mesh->vertices = (float*)malloc(sizeof(float) * countVertices * 3);
             for (const auto& vertexJson : meshJson["vertices"]) {
-                mesh->vertices.push_back(glm::vec3(
-                    vertexJson["x"].get<float>(),
-                    vertexJson["y"].get<float>(),
-                    vertexJson["z"].get<float>()
-                ));
+				componentMesh->mesh->vertices[indexVertices] = vertexJson["x"].get<float>();
+				componentMesh->mesh->vertices[indexVertices + 1] = vertexJson["y"].get<float>();
+				componentMesh->mesh->vertices[indexVertices + 2] = vertexJson["z"].get<float>();
+				indexVertices += 3;
             }
+            componentMesh->mesh->verticesCount = countVertices;
         }
 
         // Restaurar índices
         if (meshJson.contains("indices") && !meshJson["indices"].empty()) {
+			int countIndicies = meshJson["indices"].size();
+			int indexIndicies = 0;
+			componentMesh->mesh->indices = (uint*)malloc(sizeof(uint) * countIndicies * 3);
             for (const auto& indexJson : meshJson["indices"]) {
-                mesh->indices.push_back(indexJson[0]);
-                mesh->indices.push_back(indexJson[1]);
+                componentMesh->mesh->indices[indexIndicies] = indexJson[0].get<uint>();
+                componentMesh->mesh->indices[indexIndicies + 1] = indexJson[1].get<uint>();
+                componentMesh->mesh->indices[indexIndicies + 2] = indexJson[2].get<uint>();
+                indexIndicies += 3;
             }
+            componentMesh->mesh->indicesCount = countIndicies;
         }
 
         // Restaurar normales
         if (meshJson.contains("normals") && !meshJson["normals"].empty()) {
+			int countNormals = meshJson["normals"].size();
+			int indexNormals = 0;
+			componentMesh->mesh->normals = (float*)malloc(sizeof(float) * countNormals * 3);
             for (const auto& normalJson : meshJson["normals"]) {
-                mesh->normals.push_back(glm::vec3(
-                    normalJson["x"].get<float>(),
-                    normalJson["y"].get<float>(),
-                    normalJson["z"].get<float>()
-                ));
+				componentMesh->mesh->normals[indexNormals] = normalJson["x"].get<float>();
+				componentMesh->mesh->normals[indexNormals + 1] = normalJson["y"].get<float>();
+				componentMesh->mesh->normals[indexNormals + 2] = normalJson["z"].get<float>();
+                indexNormals += 3;
             }
+            componentMesh->mesh->normalsCount = countNormals;
         }
+
+		// Restaurar UVs
+		if (meshJson.contains("uv") && !meshJson["uv"].empty()) {
+			int countUVs = meshJson["uv"].size();
+			int indexUVs = 0;
+			componentMesh->mesh->texCoords = (float*)malloc(sizeof(float) * countUVs * 2);
+			for (const auto& uvJson : meshJson["uv"]) {
+				componentMesh->mesh->texCoords[indexUVs] = uvJson["u"].get<float>();
+				componentMesh->mesh->texCoords[indexUVs + 1] = uvJson["v"].get<float>();
+				indexUVs += 2;
+			}
+            componentMesh->mesh->texCoordsCount = countUVs;
+		}
+
+        componentMesh->mesh->InitMesh();
 
         // Restaurar material si existe
         if (gameObjectJson.contains("material")) {
