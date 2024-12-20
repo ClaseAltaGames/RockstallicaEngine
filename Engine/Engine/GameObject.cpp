@@ -262,10 +262,20 @@ json GameObject::SerializeMesh() const
 }
 json GameObject::SerializeMaterial() const
 {
-    // Implementa la serialización del material según tus necesidades
-    return {
-        {"texture_path", material->materialTexture ? material->materialTexture->texturePath : ""}
-    };
+	// Verifica si hay un material asignado al GameObject
+	if (!material->materialTexture)
+	{
+		// Si no hay material, devuelve un JSON indicando que no hay material
+		return { {"hasMaterial", false} };
+	}
+
+	// Devuelve un JSON con la ruta de la textura, el size y el id
+	return {
+		{"hasMaterial", true},
+		{"texture_path", material->materialTexture->texturePath},
+		{"texture_size", {material->materialTexture->textureWidth, material->materialTexture->textureHeight}},
+		{"texture_id", material->materialTexture->textureId}
+	};
 }
 
 void GameObject::DeserializeFromJson(const json& gameObjectJson)
@@ -302,27 +312,27 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
         componentMesh = new ComponentMesh(this);
         componentMesh->mesh = new Mesh();
         components.push_back(componentMesh);
-       // }
+        // }
 
-        // Restaurar vértices
+         // Restaurar vértices
         if (meshJson.contains("vertices") && !meshJson["vertices"].empty()) {
-			int countVertices = meshJson["vertices"].size();
-			int indexVertices = 0;
-			componentMesh->mesh->vertices = (float*)malloc(sizeof(float) * countVertices * 3);
+            int countVertices = meshJson["vertices"].size();
+            int indexVertices = 0;
+            componentMesh->mesh->vertices = (float*)malloc(sizeof(float) * countVertices * 3);
             for (const auto& vertexJson : meshJson["vertices"]) {
-				componentMesh->mesh->vertices[indexVertices] = vertexJson["x"].get<float>();
-				componentMesh->mesh->vertices[indexVertices + 1] = vertexJson["y"].get<float>();
-				componentMesh->mesh->vertices[indexVertices + 2] = vertexJson["z"].get<float>();
-				indexVertices += 3;
+                componentMesh->mesh->vertices[indexVertices] = vertexJson["x"].get<float>();
+                componentMesh->mesh->vertices[indexVertices + 1] = vertexJson["y"].get<float>();
+                componentMesh->mesh->vertices[indexVertices + 2] = vertexJson["z"].get<float>();
+                indexVertices += 3;
             }
             componentMesh->mesh->verticesCount = countVertices;
         }
 
         // Restaurar índices
         if (meshJson.contains("indices") && !meshJson["indices"].empty()) {
-			int countIndicies = meshJson["indices"].size();
-			int indexIndicies = 0;
-			componentMesh->mesh->indices = (uint*)malloc(sizeof(uint) * countIndicies * 3);
+            int countIndicies = meshJson["indices"].size();
+            int indexIndicies = 0;
+            componentMesh->mesh->indices = (uint*)malloc(sizeof(uint) * countIndicies * 3);
             for (const auto& indexJson : meshJson["indices"]) {
                 componentMesh->mesh->indices[indexIndicies] = indexJson[0].get<uint>();
                 componentMesh->mesh->indices[indexIndicies + 1] = indexJson[1].get<uint>();
@@ -334,52 +344,62 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
 
         // Restaurar normales
         if (meshJson.contains("normals") && !meshJson["normals"].empty()) {
-			int countNormals = meshJson["normals"].size();
-			int indexNormals = 0;
-			componentMesh->mesh->normals = (float*)malloc(sizeof(float) * countNormals * 3);
+            int countNormals = meshJson["normals"].size();
+            int indexNormals = 0;
+            componentMesh->mesh->normals = (float*)malloc(sizeof(float) * countNormals * 3);
             for (const auto& normalJson : meshJson["normals"]) {
-				componentMesh->mesh->normals[indexNormals] = normalJson["x"].get<float>();
-				componentMesh->mesh->normals[indexNormals + 1] = normalJson["y"].get<float>();
-				componentMesh->mesh->normals[indexNormals + 2] = normalJson["z"].get<float>();
+                componentMesh->mesh->normals[indexNormals] = normalJson["x"].get<float>();
+                componentMesh->mesh->normals[indexNormals + 1] = normalJson["y"].get<float>();
+                componentMesh->mesh->normals[indexNormals + 2] = normalJson["z"].get<float>();
                 indexNormals += 3;
             }
             componentMesh->mesh->normalsCount = countNormals;
         }
 
-		// Restaurar UVs
-		if (meshJson.contains("uv") && !meshJson["uv"].empty()) {
-			int countUVs = meshJson["uv"].size();
-			int indexUVs = 0;
-			componentMesh->mesh->texCoords = (float*)malloc(sizeof(float) * countUVs * 2);
-			for (const auto& uvJson : meshJson["uv"]) {
-				componentMesh->mesh->texCoords[indexUVs] = uvJson["u"].get<float>();
-				componentMesh->mesh->texCoords[indexUVs + 1] = uvJson["v"].get<float>();
-				indexUVs += 2;
-			}
+        // Restaurar UVs
+        if (meshJson.contains("uv") && !meshJson["uv"].empty()) {
+            int countUVs = meshJson["uv"].size();
+            int indexUVs = 0;
+            componentMesh->mesh->texCoords = (float*)malloc(sizeof(float) * countUVs * 2);
+            for (const auto& uvJson : meshJson["uv"]) {
+                componentMesh->mesh->texCoords[indexUVs] = uvJson["u"].get<float>();
+                componentMesh->mesh->texCoords[indexUVs + 1] = uvJson["v"].get<float>();
+                indexUVs += 2;
+            }
             componentMesh->mesh->texCoordsCount = countUVs;
-		}
+        }
 
         componentMesh->mesh->InitMesh();
 
         // Restaurar material si existe
         if (gameObjectJson.contains("material")) {
             const auto& materialJson = gameObjectJson["material"];
-            if (materialJson.contains("texture_path") && !materialJson["texture_path"].get<std::string>().empty()) {
-                // Cargar textura si es necesario
-                // Esto dependerá de cómo manejes la carga de texturas en tu motor
-                // Podrías hacer algo como:
-                // Texture* texture = app->textureLoader->LoadTexture(materialJson["texture_path"]);
-                //material->AddTexture(texture);
-            }
-        }
 
-        // Restaurar hijos
-        if (gameObjectJson.contains("children")) {
-            for (const auto& childJson : gameObjectJson["children"]) {
-                GameObject* child = new GameObject(childJson["name"].get<std::string>().c_str(), this);
-                child->DeserializeFromJson(childJson);
-                children.push_back(child);
+            if (materialJson["hasMaterial"].get<bool>()) {
+                // Obtener el path de la textura
+                std::string texturePathStr = materialJson["texture_path"].get<std::string>();
+                const char* newTexturePath = texturePathStr.c_str();
+
+                // Obtener el tamaño de la textura
+                int textureWidth = materialJson["texture_size"][0].get<int>();
+                int textureHeight = materialJson["texture_size"][1].get<int>();
+
+                // Obtener el ID de la textura
+                uint textureId = materialJson["texture_id"].get<uint>();
+
+                // Crear la textura con los valores deserializados
+                material->materialTexture = new Texture(textureId, textureWidth, textureHeight, newTexturePath);
+                material->AddTexture(material->materialTexture);
+
             }
         }
+            // Restaurar hijos
+            if (gameObjectJson.contains("children")) {
+                for (const auto& childJson : gameObjectJson["children"]) {
+                    GameObject* child = new GameObject(childJson["name"].get<std::string>().c_str(), this);
+                    child->DeserializeFromJson(childJson);
+                    children.push_back(child);
+                }
+            }
     }
 }
