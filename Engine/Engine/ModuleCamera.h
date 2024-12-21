@@ -48,7 +48,7 @@ public:
 public:
 	float fov = 60.0f;
 	float nearPlane = 0.1f;  // Ajustado para mejor visibilidad
-	float farPlane = 1000.0f; // Aumentado para que se vea más lejos
+	float farPlane = 1000.0f; // Aumentado para que se vea más lejos. De manera predefinida es 1000.0f. Para probar frustum cooling poner a 20.0f
 	int screenWidth, screenHeight;
 
 private:
