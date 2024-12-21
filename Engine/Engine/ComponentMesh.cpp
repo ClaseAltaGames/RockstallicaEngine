@@ -87,7 +87,7 @@ void ComponentMesh::Update() {
     // 5. Dibuja el AABB global
     if (showBoundingBox) {
         if (app->editor->selectedGameObject == gameObject) {
-            boundingBox.DrawAABB(glm::mat4(1.0f));  // Dibuja la AABB transformada (ya en espacio global)
+            worldBoundingBox.DrawAABB(glm::mat4(1.0f));  // Dibuja la AABB transformada (ya en espacio global)
         }
     }
 }
