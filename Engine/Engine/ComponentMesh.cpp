@@ -12,7 +12,6 @@ using json = nlohmann::json;
 ComponentMesh::ComponentMesh(GameObject* gameObject)
     : Component(gameObject, ComponentType::MESH),
     mesh(nullptr),
-    boundingBox(AABB(glm::vec3(0.0f), glm::vec3(0.0f))),  // AABB inicializada
     showBoundingBox(true)  // Nueva variable para controlar la visibilidad de AABB
 {
 }
@@ -82,7 +81,6 @@ void ComponentMesh::Update() {
         worldBoundingBox.max.z = std::max(worldBoundingBox.max.z, transformedCorner.z);
     }
 
-    boundingBox = worldBoundingBox;
 
     // 5. Dibuja el AABB global
     if (showBoundingBox) {
