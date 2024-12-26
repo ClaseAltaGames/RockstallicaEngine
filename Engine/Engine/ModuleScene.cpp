@@ -165,6 +165,11 @@ void ModuleScene::LoadScene(const char* path)
 
 void ModuleScene::SelectObjectFromMouse()
 {
+    // Clear previous selection state first
+    if (app->editor->selectedGameObject) {
+        app->editor->selectedGameObject->componentMesh->showBoundingBox = false;
+    }
+
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
@@ -174,7 +179,6 @@ void ModuleScene::SelectObjectFromMouse()
     GameObject* closestObject = nullptr;
     float closestDistance = std::numeric_limits<float>::max();
 
-    // Recursive helper function to check all objects in hierarchy
     std::function<void(GameObject*)> checkObject = [&](GameObject* obj) {
         if (obj->componentMesh && obj->componentMesh->mesh) {
             AABB worldBoundingBox = obj->componentMesh->boundingBox.GetAABB(obj->transform->globalTransform);
@@ -188,21 +192,19 @@ void ModuleScene::SelectObjectFromMouse()
             }
         }
 
-        // Check children recursively
         for (auto* child : obj->children) {
             checkObject(child);
         }
         };
 
-    // Start recursive check from root
     checkObject(root);
 
     if (closestObject) {
         app->editor->selectedGameObject = closestObject;
+        closestObject->componentMesh->showBoundingBox = true;
         LOG(LogType::LOG_INFO, "Selected object: %s", closestObject->name.c_str());
     }
 }
-
 Ray ModuleScene::GenerateRayFromMouse(int mouseX, int mouseY, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
     int width, height;
