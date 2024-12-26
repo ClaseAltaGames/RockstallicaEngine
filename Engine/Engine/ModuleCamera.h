@@ -45,6 +45,8 @@ public:
 
 	Frustum frustum; // Frustum de la cámara
 
+	glm::vec3 GetPosition();
+
 public:
 	float fov = 60.0f;
 	float nearPlane = 0.1f;  // Ajustado para mejor visibilidad

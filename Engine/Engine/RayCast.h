@@ -17,3 +17,4 @@ public:
 	bool IntersectsGameObject(const glm::vec3& origin, const glm::vec3& direction, const glm::vec3& min, const glm::vec3& max) const;
 };
 
+

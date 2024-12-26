@@ -26,7 +26,7 @@ void AABB::Update(const glm::vec3& point) {
 
 // Draw the bounding box
 void AABB::DrawAABB(const glm::mat4& modelTransform) const {
-	std::cout << "Drawing AABB" << std::endl;
+	
     // Asegurarnos de que la AABB esté correctamente transformada
     AABB transformedAABB = GetAABB(modelTransform);
 

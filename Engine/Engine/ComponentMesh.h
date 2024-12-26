@@ -26,10 +26,10 @@ public:
 public:
     Mesh* mesh;
     AABB boundingBox;  // Bounding box for the mesh
+	bool showBoundingBox = false;
 
 private:
 
     bool showVertexNormals = false;
     bool showFaceNormals = false;
-	bool showBoundingBox = false;
 };

@@ -57,3 +57,4 @@ bool RayCast::IntersectsGameObject(const glm::vec3& origin, const glm::vec3& dir
 {
 	return IntersectsAABB(origin, direction, min, max);
 }
+

@@ -1,8 +1,12 @@
+#define NOMINMAX
+
+
 #include "ModuleScene.h"
 #include "App.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include "glm/glm.hpp"
+#include "RayCast.h"
 
 using json = nlohmann::json;
 
@@ -40,7 +44,12 @@ bool ModuleScene::Update(float dt)
 		auto& siblings = app->editor->selectedGameObject->parent->children;
 		siblings.erase(std::remove(siblings.begin(), siblings.end(), app->editor->selectedGameObject), siblings.end());
 	}
-
+    if (app->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN) {
+        SelectObjectFromMouse();
+    }
+   /* if (app->editor->selectedGameObject) {
+        app->editor->selectedGameObject->boundingBox->DrawAABB(app->editor->selectedGameObject->transform);
+    }*/
 	return true;
 }
 
@@ -150,4 +159,68 @@ void ModuleScene::LoadScene(const char* path)
     else {
         LOG(LogType::LOG_ERROR, "Failed to load scene from %s", scenePath.c_str());
     }
+}
+
+// In ModuleScene.cpp, modify SelectObjectFromMouse():
+
+void ModuleScene::SelectObjectFromMouse()
+{
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+
+    Ray ray = GenerateRayFromMouse(mouseX, mouseY, app->camera->GetViewMatrix(), app->camera->GetProjectionMatrix());
+
+    RayCast rayCast;
+    GameObject* closestObject = nullptr;
+    float closestDistance = std::numeric_limits<float>::max();
+
+    // Recursive helper function to check all objects in hierarchy
+    std::function<void(GameObject*)> checkObject = [&](GameObject* obj) {
+        if (obj->componentMesh && obj->componentMesh->mesh) {
+            AABB worldBoundingBox = obj->componentMesh->boundingBox.GetAABB(obj->transform->globalTransform);
+
+            if (rayCast.IntersectsAABB(ray.origin, ray.direction, worldBoundingBox.min, worldBoundingBox.max)) {
+                float distance = glm::length(worldBoundingBox.min - ray.origin);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestObject = obj;
+                }
+            }
+        }
+
+        // Check children recursively
+        for (auto* child : obj->children) {
+            checkObject(child);
+        }
+        };
+
+    // Start recursive check from root
+    checkObject(root);
+
+    if (closestObject) {
+        app->editor->selectedGameObject = closestObject;
+        LOG(LogType::LOG_INFO, "Selected object: %s", closestObject->name.c_str());
+    }
+}
+
+Ray ModuleScene::GenerateRayFromMouse(int mouseX, int mouseY, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+{
+    int width, height;
+    SDL_GetWindowSize(app->window->window, &width, &height);
+
+    // Convertir coordenadas del ratón a NDC
+    float x = (2.0f * mouseX) / width - 1.0f;
+    float y = 1.0f - (2.0f * mouseY) / height;
+    glm::vec4 rayNDC(x, y, -1.0f, 1.0f);
+
+    // Convertir de NDC a espacio de vista
+    glm::vec4 rayView = glm::inverse(projectionMatrix) * rayNDC;
+    rayView.z = -1.0f;
+    rayView.w = 0.0f;
+
+    // Convertir de espacio de vista a espacio del mundo
+    glm::vec3 rayWorld = glm::vec3(glm::inverse(viewMatrix) * rayView);
+    rayWorld = glm::normalize(rayWorld);
+
+    return Ray(app->camera->GetPosition(), rayWorld);
 }
