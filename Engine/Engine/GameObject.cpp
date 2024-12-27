@@ -286,21 +286,36 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
     // Restaurar transformación
     if (gameObjectJson.contains("transform")) {
         const auto& transformJson = gameObjectJson["transform"];
-        transform->position = glm::vec3(
-            transformJson["position"][0],
-            transformJson["position"][1],
-            transformJson["position"][2]
-        );
-        transform->rotation = glm::vec3(
-            transformJson["rotation"][0],
-            transformJson["rotation"][1],
-            transformJson["rotation"][2]
-        );
-        transform->scale = glm::vec3(
-            transformJson["scale"][0],
-            transformJson["scale"][1],
-            transformJson["scale"][2]
-        );
+
+        // Asegúrate de que el transform existe
+        if (!transform) {
+            transform = new ComponentTransform(this);
+            components.push_back(transform);
+        }
+
+        // Asignar los valores de la transformación
+        if (transformJson.contains("position")) {
+            transform->position = glm::vec3(
+                transformJson["position"][0].get<float>(),
+                transformJson["position"][1].get<float>(),
+                transformJson["position"][2].get<float>()
+            );
+        }
+        if (transformJson.contains("rotation")) {
+            transform->rotation = glm::vec3(
+                transformJson["rotation"][0].get<float>(),
+                transformJson["rotation"][1].get<float>(),
+                transformJson["rotation"][2].get<float>()
+            );
+        }
+        if (transformJson.contains("scale")) {
+            transform->scale = glm::vec3(
+                transformJson["scale"][0].get<float>(),
+                transformJson["scale"][1].get<float>(),
+                transformJson["scale"][2].get<float>()
+            );
+        }
+		transform->UpdateTransform();
     }
 
 
