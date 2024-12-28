@@ -131,3 +131,25 @@ Resource* ModuleImporter::ImportFileToLibrary(const std::string& fileDir, Resour
 
 	return resource;
 }
+
+void ModuleImporter::ImportScene(const std::string& fileDir)
+{
+	std::string extension = app->fileSystem->GetExtension(fileDir);
+
+	if (extension != "fbx")
+	{
+		LOG(LogType::LOG_WARNING, "File format not supported");
+		return;
+	}
+
+	std::string newDir = app->fileSystem->CopyFileIfNotExists(fileDir);
+
+	ResourceType resourceType = app->resources->GetResourceTypeFromExtension(extension);
+
+	Resource* newResource = app->resources->FindResourceInLibrary(newDir, resourceType);
+
+	if (!newResource)
+		newResource = ImportFileToLibrary(newDir, resourceType);
+
+	modelImporter->LoadModel(newResource, app->scene->root);
+}

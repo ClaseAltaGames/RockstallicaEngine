@@ -393,22 +393,28 @@ void GameObject::DeserializeFromJson(const json& gameObjectJson)
             if (materialJson["hasMaterial"].get<bool>()) {
                 // Obtener el path de la textura
                 std::string texturePathStr = materialJson["texture_path"].get<std::string>();
-                const char* newTexturePath = texturePathStr.c_str();
 
-                // Obtener el tamaño de la textura
-                int textureWidth = materialJson["texture_size"][0].get<int>();
-                int textureHeight = materialJson["texture_size"][1].get<int>();
+                // Crear un Resource temporal para cargar la textura
+                Resource textureResource(texturePathStr, ResourceType::TEXTURE);
 
-                // Obtener el ID de la textura
-                uint textureId = materialJson["texture_id"].get<uint>();
+                // Configurar los paths del resource
+                // Asumiendo que el asset path es el texturePathStr
+                textureResource.SetAssetFileDir(texturePathStr);
 
-                // Crear la textura con los valores deserializados
-                material->materialTexture = new Texture(textureId, textureWidth, textureHeight, newTexturePath);
-                material->AddTexture(material->materialTexture);
+                // Construir el library path (ajusta esto según tu estructura de archivos)
+                std::string libraryPath = texturePathStr;
 
+                textureResource.SetLibraryFileDir(libraryPath);
+
+                // Usar el TextureImporter para cargar la textura
+                TextureImporter importer;
+                material->materialTexture = importer.LoadTextureImage(&textureResource);
+
+                if (material->materialTexture) {
+                    material->AddTexture(material->materialTexture);
+                }
             }
-        }
-            // Restaurar hijos
+        }            // Restaurar hijos
             if (gameObjectJson.contains("children")) {
                 for (const auto& childJson : gameObjectJson["children"]) {
                     GameObject* child = new GameObject(childJson["name"].get<std::string>().c_str(), this);

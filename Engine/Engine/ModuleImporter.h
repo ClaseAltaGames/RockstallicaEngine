@@ -35,6 +35,7 @@ public:
 
 	void TryImportFile();
 	void ImportFile(const std::string& fileDir, bool addToScene = false);
+	void ImportScene(const std::string& fileDir);
 	void SetDraggedFile(const std::string& filePath);
 
 	Resource* ImportFileToLibrary(const std::string& fileDir, ResourceType type);
