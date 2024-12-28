@@ -102,7 +102,7 @@ bool ModuleRenderer3D::Awake()
 
 	//app->importer->ImportFile("Assets/Models/Street environment_V01.fbx", true);
 	//app->importer->ImportFile("Assets/Models/BakerHouse.fbx", true);
-	app->importer->ImportScene("Assets/Scenes/Scene.scene");
+	app->scene->LoadScene("Assets/Scenes/Scene");
 
 	app->editor->selectedGameObject = app->scene->root->children[0];
 
