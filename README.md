@@ -1,3 +1,6 @@
+# ⚠️ BEFORE OPENING ENGINE ⚠️
+To try the new features with the new scene, you have to unzip the Scene.zip in Engine/Engine/Assets/Scenes and put the Scene.scene in Scenes folder.
+
 # Rockstallica Engine
 ![655497EC-52E8-4703-9758-D0CD6AA57566_4_5005_c](https://github.com/user-attachments/assets/dd874f3d-9a8e-4075-8042-3d03edb3c761)
 
@@ -27,7 +30,7 @@ The project is under active development, and the code is available on [GitHub](h
 - **Alt + Mouse Wheel**: Pan the camera.
 - **F**: Frame the selected object.
 
-## Features
+## Original Features
 - **Model Import**: Import models in FBX format.
 - **Texture Import**: Supports PNG and DDS texture formats.
 - **Drag and Drop**: Allows importing files by dragging them directly.
@@ -36,6 +39,15 @@ The project is under active development, and the code is available on [GitHub](h
 - **Custom File Library**: Manage files with a custom file format.
 - **Shading Modes**: Swap between Shaded, Wireframe & Shaded Wireframe options.
 - **Engine Monitor**: Visualize monitoring information.
+
+## New Features
+- **Scene Serialization**: Scenes can be serialized in .scene format.
+- **Frustum Culling Camera**: The camera implements the frustum that optimizes the engine.
+- **Bounding Boxes**: Each gameobject has his own AABB.
+- **Clickable Objects**: You can click and select every object on the scene with a ray cast.
+- **Hierarchy Improvements**: You can delete gameobjects and add a camera component.
+- **Play / Pause**: You can play and move in the scene with a player, and then pause the iteration.
+- **New Scene**: A new scene "Street Enviroment" is loaded with .scene format.
 
 ## Panels
 - **Hierarchy**: Displays all game objects currently present in the scene. Includes a search feature to locate specific game objects and provides options to create empty game objects and basic primitive shapes.
