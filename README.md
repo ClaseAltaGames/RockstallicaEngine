@@ -47,7 +47,7 @@ The project is under active development, and the code is available on [GitHub](h
 - **Clickable Objects**: You can click and select every object on the scene with a ray cast.
 - **Hierarchy Improvements**: You can delete gameobjects and add a camera component.
 - **Play / Pause**: You can play and move in the scene with a player, and then pause the iteration.
-- **New Scene**: A new scene "Street Enviroment" is loaded with .scene format.
+- **New Scene**: A new scene "Street Enviroment" is loaded with .scene format
 
 ## Panels
 - **Hierarchy**: Displays all game objects currently present in the scene. Includes a search feature to locate specific game objects and provides options to create empty game objects and basic primitive shapes.
